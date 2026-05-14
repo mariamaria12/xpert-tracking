@@ -1,26 +1,30 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0b1220;
+  --surface: #111827;
+  --accent-primary: #22d3ee;
+  --accent-secondary: #38bdf8;
+  --foreground: #e5e7eb;
+  --border: rgba(255, 255, 255, 0.1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer components {
+  .card {
+    @apply bg-white/5 border border-white/10 rounded-2xl backdrop-blur-xl shadow-lg shadow-black/20 p-6 transition duration-200 hover:-translate-y-1;
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  .btn-accent {
+    @apply bg-cyan-400/20 text-cyan-400 px-4 py-2 rounded-lg transition hover:bg-cyan-400/30 hover:shadow-[0_0_20px_rgba(34,211,238,0.4)];
+  }
+
+  .nav-active {
+    @apply bg-cyan-400/10 text-cyan-400 shadow-[inset_3px_0_0_0_#22D3EE] rounded-lg px-3 py-2 flex items-center gap-3 transition;
+  }
+
+  .nav-idle {
+    @apply text-white/70 hover:text-white hover:bg-white/5 rounded-lg px-3 py-2 flex items-center gap-3 transition;
+  }
 }
