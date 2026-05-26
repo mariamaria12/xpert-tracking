@@ -29,6 +29,14 @@ export interface Person {
   status: "active" | "inactive";
 }
 
+
+export interface User {
+  email: string;
+  name?: string;
+  role?: string;
+  password: string
+}
+
 export interface TimesheetEntry {
   id: string;
   employee: string;

@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { signIn } from "@/actions/auth";
+import { authenticate } from "@/lib/actions";
+import { useActionState } from "react";
 
 const inputClassName =
   "w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-400";
@@ -15,13 +14,13 @@ type LoginFormProps = {
 };
 
 export default function LoginForm({ headingId }: LoginFormProps) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-
+  const [errorMessage, formAction, isPending] = useActionState(
+    authenticate,
+    undefined,
+  );
   return (
     <form
-      // action={signIn}
+      action={formAction}
       className="space-y-4"
       aria-labelledby={headingId}
     >
@@ -30,18 +29,12 @@ export default function LoginForm({ headingId }: LoginFormProps) {
           Email
         </label>
         <input
-          id="email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          inputMode="email"
-          autoCapitalize="none"
-          spellCheck={false}
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@company.com"
           className={inputClassName}
+          id="email"
+          type="email"
+          name="email"
+          placeholder="Enter your email address"
+          required
         />
       </div>
       <div>
@@ -49,20 +42,23 @@ export default function LoginForm({ headingId }: LoginFormProps) {
           Password
         </label>
         <input
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="••••••••"
           className={inputClassName}
+          id="password"
+          type="password"
+          name="password"
+          placeholder="Enter password"
+          required
+          minLength={6}
         />
       </div>
-      <button type="submit" className={buttonClassName}>
+      <button type="submit" className={buttonClassName} aria-disabled={isPending}>
         Sign In
       </button>
+      <div className="flex h-8 items-end space-x-1">
+          {errorMessage && (
+              <p className="text-sm text-red-500">{errorMessage}</p>
+          )}
+        </div>
     </form>
   );
 }
