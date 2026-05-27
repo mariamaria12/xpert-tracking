@@ -5,6 +5,7 @@ import type { DataTableColumn } from "@/ui/table/DataTable";
 
 import type { ClientOption } from "./AddProjectDialog";
 import EditProjectDialog from "./EditProjectDialog";
+import ProjectStatusBadge from "./ProjectStatusBadge";
 
 export type ProjectRow = {
   id: string;
@@ -23,30 +24,6 @@ export type ProjectRow = {
 function formatHours(value: number | null) {
   if (value === null) return "—";
   return new Intl.NumberFormat("en-US", { maximumFractionDigits: 1 }).format(value);
-}
-
-function ProjectStatusBadge({ status }: { status: string }) {
-  const normalized = status.trim().toLowerCase();
-
-  const styles =
-    normalized === "completed"
-      ? "bg-emerald-400/10 text-emerald-400"
-      : normalized === "active"
-        ? "bg-cyan-400/10 text-cyan-400"
-        : "bg-amber-400/10 text-amber-300";
-
-  const label = status.trim() || "—";
-
-  return (
-    <span
-      className={cn(
-        "inline-flex rounded-full px-2.5 py-1 text-xs font-medium",
-        styles,
-      )}
-    >
-      {label}
-    </span>
-  );
 }
 
 function getDueDateTone({

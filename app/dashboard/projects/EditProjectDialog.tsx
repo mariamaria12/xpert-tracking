@@ -7,6 +7,12 @@ import SelectPicker from "../timesheet/SelectPicker";
 import type { ClientOption } from "./AddProjectDialog";
 import type { ProjectRow } from "./columns";
 import { updateProject, type ProjectFormState } from "./actions";
+import {
+  formatProjectStatusLabel,
+  PROJECT_STATUSES,
+  projectStatusOptions,
+  type ProjectStatus,
+} from "./projectStatuses";
 
 const inputClassName =
   "w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-400";
@@ -40,6 +46,27 @@ export default function EditProjectDialog({
 
   const [clientId, setClientId] = useState(initialValues.clientId);
 
+  const statusOptions = useMemo(() => {
+    const current = initialValues.status.trim().toLowerCase();
+    if (
+      current &&
+      !PROJECT_STATUSES.includes(current as ProjectStatus)
+    ) {
+      return [
+        { id: current, label: formatProjectStatusLabel(current) },
+        ...projectStatusOptions,
+      ];
+    }
+    return projectStatusOptions;
+  }, [initialValues.status]);
+
+  const currentStatus = initialValues.status.trim().toLowerCase();
+  const initialStatus = statusOptions.some((o) => o.id === currentStatus)
+    ? currentStatus
+    : (statusOptions[0]?.id ?? "draft");
+
+  const [status, setStatus] = useState(initialStatus);
+
   const [state, formAction, isPending] = useActionState<ProjectFormState, FormData>(
     updateProject,
     undefined,
@@ -53,6 +80,7 @@ export default function EditProjectDialog({
 
   function openDialog() {
     setClientId(initialValues.clientId);
+    setStatus(initialStatus);
     dialogRef.current?.showModal();
   }
 
@@ -78,6 +106,7 @@ export default function EditProjectDialog({
         <form action={formAction} className="p-6">
           <input type="hidden" name="id" value={row.id} />
           <input type="hidden" name="clientId" value={clientId} />
+          <input type="hidden" name="status" value={status} />
 
           <div className="mb-6 flex items-start justify-between gap-4">
             <div>
@@ -138,11 +167,12 @@ export default function EditProjectDialog({
                 >
                   Status
                 </label>
-                <input
-                  id={`status-${row.id}`}
-                  name="status"
-                  className={inputClassName}
-                  defaultValue={initialValues.status}
+                <SelectPicker
+                  id={`statusPicker-${row.id}`}
+                  options={statusOptions}
+                  value={status}
+                  onChange={setStatus}
+                  placeholder="Select status"
                 />
                 <FieldError messages={state?.errors?.status} />
               </div>

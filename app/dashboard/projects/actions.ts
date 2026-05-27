@@ -7,10 +7,12 @@ import { z } from "zod";
 
 import { createClient } from "@/lib/supabase/server";
 
+import { PROJECT_STATUSES } from "./projectStatuses";
+
 const ProjectSchema = z.object({
   name: z.string().trim().min(1, "Project name is required."),
   clientId: z.string().trim().min(1, "Client is required."),
-  status: z.string().trim().optional(),
+  status: z.enum(PROJECT_STATUSES, { error: "Select a valid status." }),
   estimatedHours: z.string().trim().optional(),
   dueDate: z.string().trim().optional(),
   description: z.string().trim().optional(),
@@ -91,7 +93,7 @@ export async function createProject(
   const { error } = await supabase.from("projects").insert({
     name,
     client_id: clientId,
-    status: status?.trim() || "draft",
+    status,
     estimated_hours: estimated,
     due_date: due,
     description: description || null,
@@ -148,7 +150,7 @@ export async function updateProject(
     .update({
       name,
       client_id: clientId,
-      status: status?.trim() || "draft",
+      status,
       estimated_hours: estimated,
       due_date: due,
       description: description || null,

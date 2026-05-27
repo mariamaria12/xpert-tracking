@@ -1,10 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 
+import { isActiveHomeProject } from "./projects/projectStatuses";
+
 export type ActiveProjectSummary = {
   id: string;
   name: string;
   companyName: string;
+  status: string;
   estimatedHours: number | null;
   actualHours: number;
   dueDate: Date | null;
@@ -13,6 +16,7 @@ export type ActiveProjectSummary = {
 type ActiveProjectDbRow = {
   id: string;
   name: string;
+  status: string;
   estimated_hours: number | null;
   due_date: string | null;
   clients?: { company_name: string | null } | { company_name: string | null }[] | null;
@@ -52,8 +56,7 @@ export async function getHomeDashboardData(): Promise<HomeDashboardData> {
     supabase.from("time_logs").select("project_id, duration_minutes"),
     supabase
       .from("projects")
-      .select("id, name, estimated_hours, due_date, clients(company_name)")
-      .eq("status", "active")
+      .select("id, name, status, estimated_hours, due_date, clients(company_name)")
       .order("due_date", { ascending: true }),
   ]);
 
@@ -73,15 +76,18 @@ export async function getHomeDashboardData(): Promise<HomeDashboardData> {
 
   const projects: ActiveProjectSummary[] = activeProjectsError
     ? []
-    : ((activeProjects ?? []) as ActiveProjectDbRow[]).map((p) => ({
-    id: p.id,
-    name: p.name,
-    companyName: pickCompanyName(p.clients),
-    estimatedHours:
-      p.estimated_hours === null ? null : Number(p.estimated_hours),
-    actualHours: (actualMinutesByProjectId.get(p.id) ?? 0) / 60,
-    dueDate: p.due_date ? new Date(p.due_date) : null,
-  }));
+    : ((activeProjects ?? []) as ActiveProjectDbRow[])
+        .filter((p) => isActiveHomeProject(p.status))
+        .map((p) => ({
+          id: p.id,
+          name: p.name,
+          companyName: pickCompanyName(p.clients),
+          status: p.status,
+          estimatedHours:
+            p.estimated_hours === null ? null : Number(p.estimated_hours),
+          actualHours: (actualMinutesByProjectId.get(p.id) ?? 0) / 60,
+          dueDate: p.due_date ? new Date(p.due_date) : null,
+        }));
 
   return {
     teamMembersCount:

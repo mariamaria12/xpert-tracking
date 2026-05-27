@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { cn, formatDate } from "@/lib/utils";
 
+import ProjectStatusBadge from "./projects/ProjectStatusBadge";
+
 import type { ActiveProjectSummary } from "./getHomeData";
 
 function formatHours(value: number | null) {
@@ -101,6 +103,7 @@ export default function ActiveProjectsPanel({
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-6 text-sm">
+                <ProjectStatusBadge status={project.status} />
                 <div className="text-right">
                   <p className="text-white/40">Hours</p>
                   <p className="text-white/80">

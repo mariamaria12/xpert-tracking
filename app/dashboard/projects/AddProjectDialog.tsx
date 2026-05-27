@@ -5,6 +5,7 @@ import { useActionState, useEffect, useRef, useState } from "react";
 
 import SelectPicker from "../timesheet/SelectPicker";
 import { createProject, type ProjectFormState } from "./actions";
+import { projectStatusOptions } from "./projectStatuses";
 
 export type ClientOption = { id: string; label: string };
 
@@ -26,7 +27,9 @@ export default function AddProjectDialog({ clients }: { clients: ClientOption[] 
   );
 
   const defaultClientId = clients[0]?.id ?? "";
+  const defaultStatus = "draft";
   const [clientId, setClientId] = useState(defaultClientId);
+  const [status, setStatus] = useState(defaultStatus);
 
   useEffect(() => {
     if (state?.success) {
@@ -37,6 +40,7 @@ export default function AddProjectDialog({ clients }: { clients: ClientOption[] 
 
   function openDialog() {
     setClientId(defaultClientId);
+    setStatus(defaultStatus);
     dialogRef.current?.showModal();
   }
 
@@ -62,6 +66,7 @@ export default function AddProjectDialog({ clients }: { clients: ClientOption[] 
       >
         <form ref={formRef} action={formAction} className="p-6">
           <input type="hidden" name="clientId" value={clientId} />
+          <input type="hidden" name="status" value={status} />
 
           <div className="mb-6 flex items-start justify-between gap-4">
             <div>
@@ -110,15 +115,15 @@ export default function AddProjectDialog({ clients }: { clients: ClientOption[] 
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label htmlFor="status" className="mb-1 block text-sm text-white/70">
+                <label htmlFor="statusPicker" className="mb-1 block text-sm text-white/70">
                   Status
                 </label>
-                <input
-                  id="status"
-                  name="status"
-                  className={inputClassName}
-                  placeholder="active"
-                  defaultValue="active"
+                <SelectPicker
+                  id="statusPicker"
+                  options={projectStatusOptions}
+                  value={status}
+                  onChange={setStatus}
+                  placeholder="Select status"
                 />
                 <FieldError messages={state?.errors?.status} />
               </div>
