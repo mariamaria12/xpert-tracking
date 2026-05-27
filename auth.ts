@@ -4,9 +4,18 @@ import { authConfig } from './auth.config';
 import { z } from 'zod';
 import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
+import {
+  SESSION_MAX_AGE_SECONDS,
+  SESSION_UPDATE_AGE_SECONDS,
+} from '@/lib/auth/session';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
+  session: {
+    strategy: 'jwt',
+    maxAge: SESSION_MAX_AGE_SECONDS,
+    updateAge: SESSION_UPDATE_AGE_SECONDS,
+  },
   providers: [
     Credentials({
       async authorize(credentials) {
