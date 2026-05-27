@@ -16,6 +16,12 @@
     @apply bg-white/5 border border-white/10 rounded-2xl backdrop-blur-xl shadow-lg shadow-black/20 p-6 transition duration-200 hover:-translate-y-1;
   }
 
+  /* Match native datetime picker icon color with SelectPicker arrow. */
+  .datetime-picker::-webkit-calendar-picker-indicator {
+    opacity: 0.4;
+    filter: invert(1);
+  }
+
   .btn-accent {
     @apply bg-cyan-400/20 text-cyan-400 px-4 py-2 rounded-lg transition hover:bg-cyan-400/30 hover:shadow-[0_0_20px_rgba(34,211,238,0.4)];
   }

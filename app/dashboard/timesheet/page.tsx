@@ -1,48 +1,55 @@
-export default function TimesheetPage() {
-  const columns = [
-    "Employee",
-    "Project",
-    "Date",
-    "Hours",
-    "Status",
-    "Actions",
-  ];
+import TimesheetTable from "./TimesheetTable";
+import { getTimesheetRows } from "./getTimesheetRows";
+import AddTimesheetDialog from "./AddTimesheetDialog";
+import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/server";
+
+type EmployeeDbRow = { id: string; first_name: string; last_name: string };
+type ProjectDbRow = { id: string; name: string; status: string | null };
+
+export default async function TimesheetPage() {
+  const { rows, error } = await getTimesheetRows();
+
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  const [{ data: employees }, { data: projects }] = await Promise.all([
+    supabase.from("employees").select("id, first_name, last_name").order("last_name"),
+    supabase.from("projects").select("id, name, status").order("name"),
+  ]);
+
+  const employeeOptions =
+    ((employees ?? []) as EmployeeDbRow[]).map((e) => ({
+      id: String(e.id),
+      label: `${e.first_name ?? ""} ${e.last_name ?? ""}`.trim() || "—",
+    })) ?? [];
+
+  const projectOptionsRaw =
+    ((projects ?? []) as ProjectDbRow[]).map((p) => ({
+      id: String(p.id),
+      label: String(p.name ?? "—"),
+      status: p.status ? String(p.status) : null,
+    })) ?? [];
+
+  const projectOptions = [...projectOptionsRaw].sort((a, b) => {
+    const aCompleted = (a.status ?? "").toLowerCase() === "completed";
+    const bCompleted = (b.status ?? "").toLowerCase() === "completed";
+    if (aCompleted !== bCompleted) return aCompleted ? 1 : -1;
+    return a.label.localeCompare(b.label);
+  });
 
   return (
     <div>
-      <h1 className="mb-8 text-2xl font-bold text-white">Timesheet</h1>
-      <div className="overflow-x-auto rounded-xl border border-white/10">
-        <table className="w-full min-w-[36rem] border-collapse text-left">
-          <thead>
-            <tr className="bg-white/5 text-xs uppercase tracking-wider text-white/50">
-              {columns.map((col) => (
-                <th key={col} className="p-4 font-medium">
-                  {col}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {[0, 1, 2].map((row) => (
-              <tr
-                key={row}
-                className="border-t border-white/10 text-white/20 transition hover:bg-white/5"
-              >
-                <td className="p-4">—</td>
-                <td className="p-4">—</td>
-                <td className="p-4">—</td>
-                <td className="p-4">—</td>
-                <td className="p-4">
-                  <span className="rounded-full bg-white/10 px-2 py-1 text-xs text-white/30">
-                    —
-                  </span>
-                </td>
-                <td className="p-4">—</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <h1 className="text-2xl font-bold text-white">Timesheet</h1>
+        <AddTimesheetDialog employees={employeeOptions} projects={projectOptions} />
       </div>
+      <TimesheetTable
+        rows={rows}
+        error={error}
+        employees={employeeOptions}
+        projects={projectOptions}
+      />
     </div>
   );
 }
