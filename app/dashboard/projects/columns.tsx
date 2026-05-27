@@ -3,15 +3,21 @@ import React from "react";
 import { cn, formatDate } from "@/lib/utils";
 import type { DataTableColumn } from "@/ui/table/DataTable";
 
+import type { ClientOption } from "./AddProjectDialog";
+import EditProjectDialog from "./EditProjectDialog";
+
 export type ProjectRow = {
   id: string;
   name: string;
+  clientId: string;
   companyName: string;
   estimatedHours: number | null;
   actualHours: number;
   workers: number;
   status: string;
   dueDate: Date | null;
+  dueDateIso: string | null;
+  description: string | null;
 };
 
 function formatHours(value: number | null) {
@@ -111,7 +117,12 @@ function DueDateCell({
   );
 }
 
-export const projectColumns: DataTableColumn<ProjectRow>[] = [
+export function getProjectColumns({
+  clients,
+}: {
+  clients: ClientOption[];
+}): DataTableColumn<ProjectRow>[] {
+  return [
   {
     id: "name",
     header: "Name",
@@ -156,5 +167,12 @@ export const projectColumns: DataTableColumn<ProjectRow>[] = [
       />
     ),
   },
-];
+  {
+    id: "actions",
+    header: "Actions",
+    align: "right",
+    cell: (row) => <EditProjectDialog row={row} clients={clients} />,
+  },
+  ];
+}
 

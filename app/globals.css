@@ -16,10 +16,22 @@
     @apply bg-white/5 border border-white/10 rounded-2xl backdrop-blur-xl shadow-lg shadow-black/20 p-6 transition duration-200 hover:-translate-y-1;
   }
 
-  /* Match native datetime picker icon color with SelectPicker arrow. */
-  .datetime-picker::-webkit-calendar-picker-indicator {
+  /* Match native date/time picker icon color with SelectPicker arrow. */
+  .datetime-picker::-webkit-calendar-picker-indicator,
+  .date-picker::-webkit-calendar-picker-indicator {
     opacity: 0.4;
     filter: invert(1);
+  }
+
+  .number-input-no-spinner::-webkit-inner-spin-button,
+  .number-input-no-spinner::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .number-input-no-spinner {
+    -moz-appearance: textfield;
+    appearance: textfield;
   }
 
   .btn-accent {

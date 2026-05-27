@@ -4,14 +4,16 @@ import { FolderKanban } from "lucide-react";
 
 import DataTable from "@/ui/table/DataTable";
 
-import { projectColumns, type ProjectRow } from "./columns";
+import { getProjectColumns, type ProjectRow } from "./columns";
+import type { ClientOption } from "./AddProjectDialog";
 
 type ProjectsTableProps = {
   rows: ProjectRow[];
   error?: string;
+  clients: ClientOption[];
 };
 
-export default function ProjectsTable({ rows, error }: ProjectsTableProps) {
+export default function ProjectsTable({ rows, error, clients }: ProjectsTableProps) {
   const emptyState = error
     ? {
         title: "Could not load projects",
@@ -24,9 +26,11 @@ export default function ProjectsTable({ rows, error }: ProjectsTableProps) {
         icon: <FolderKanban className="h-6 w-6" aria-hidden />,
       };
 
+  const columns = getProjectColumns({ clients });
+
   return (
     <DataTable<ProjectRow>
-      columns={projectColumns}
+      columns={columns}
       data={rows}
       emptyState={emptyState}
       getRowId={(row) => row.id}

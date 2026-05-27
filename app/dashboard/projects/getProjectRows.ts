@@ -6,9 +6,11 @@ import type { ProjectRow } from "./columns";
 type ProjectDbRow = {
   id: string;
   name: string;
+  client_id: string;
   status: string;
   estimated_hours: number | null;
   due_date: string | null;
+  description: string | null;
   clients?: { company_name: string | null } | { company_name: string | null }[] | null;
 };
 
@@ -38,7 +40,9 @@ export async function getProjectRows(): Promise<ProjectRowsResult> {
     await Promise.all([
       supabase
         .from("projects")
-        .select("id, name, status, estimated_hours, due_date, clients(company_name)")
+        .select(
+          "id, name, client_id, status, estimated_hours, due_date, description, clients(company_name)",
+        )
         .order("name", { ascending: true }),
       supabase
         .from("time_logs")
@@ -76,12 +80,15 @@ export async function getProjectRows(): Promise<ProjectRowsResult> {
   const rows: ProjectRow[] = ((projects ?? []) as ProjectDbRow[]).map((p) => ({
     id: p.id,
     name: p.name,
+    clientId: p.client_id,
     companyName: pickCompanyName(p.clients),
     estimatedHours: p.estimated_hours === null ? null : Number(p.estimated_hours),
     actualHours: (actualMinutesByProjectId.get(p.id) ?? 0) / 60,
     workers: workersByProjectId.get(p.id)?.size ?? 0,
     status: p.status,
     dueDate: p.due_date ? new Date(p.due_date) : null,
+    dueDateIso: p.due_date,
+    description: p.description,
   }));
 
   return { rows };
