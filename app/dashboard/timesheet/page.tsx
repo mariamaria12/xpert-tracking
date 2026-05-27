@@ -11,8 +11,8 @@ export default function TimesheetPage() {
   return (
     <div>
       <h1 className="mb-8 text-2xl font-bold text-white">Timesheet</h1>
-      <div className="overflow-hidden rounded-xl border border-white/10">
-        <table className="w-full border-collapse text-left">
+      <div className="overflow-x-auto rounded-xl border border-white/10">
+        <table className="w-full min-w-[36rem] border-collapse text-left">
           <thead>
             <tr className="bg-white/5 text-xs uppercase tracking-wider text-white/50">
               {columns.map((col) => (

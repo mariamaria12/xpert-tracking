@@ -4,7 +4,7 @@ import { Suspense } from "react";
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#0B1220] px-4">
+    <main className="flex min-h-screen items-center justify-center bg-[#0B1220] px-4 py-8">
       <div className="card mx-auto w-full max-w-md">
         <div className="mb-8 text-center">
           <div className="mb-3 flex items-center justify-center gap-2">
