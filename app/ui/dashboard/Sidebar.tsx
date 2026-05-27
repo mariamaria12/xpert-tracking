@@ -14,15 +14,17 @@ import {
   Settings2,
   Truck,
   Users,
-  Wrench,
+  Handshake
 } from "lucide-react";
+import { NavItem } from "@/ui/types";
 
-const mainNav = [
+const mainNav: NavItem[] = [
   { label: "Home", href: "/dashboard", icon: LayoutDashboard },
   { label: "Projects", href: "/dashboard/projects", icon: FolderKanban },
   { label: "People", href: "/dashboard/people", icon: Users },
+  { label: "Clients", href: "/dashboard/clients", icon: Users },
   { label: "Timesheet", href: "/dashboard/timesheet", icon: Clock },
-  { label: "Tools", href: "/dashboard/tools", icon: Wrench },
+  { label: "Tools", href: "/dashboard/tools", icon: Handshake },
 ] as const;
 
 type SidebarProps = {
