@@ -1,6 +1,7 @@
 import React from "react";
 
 import type { DataTableColumn } from "@/ui/table/DataTable";
+import EditEmployeeDialog from "./EditEmployeeDialog";
 
 export type PeopleRow = {
   id: string;
@@ -69,6 +70,15 @@ export const peopleColumns: DataTableColumn<PeopleRow>[] = [
       ) : (
         <span className="text-white/80">{formatHoursPerWeek(row.hoursPerWeek)}</span>
       ),
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: (row) => (
+      <div className="flex justify-end">
+        <EditEmployeeDialog row={row} />
+      </div>
+    ),
   },
 ];
 
