@@ -16,19 +16,17 @@ export default function LastLogCard({ display }: { display: LastLogDisplay | nul
   }
 
   return (
-    <div
+    <span
       className={cn(
-        "inline-flex min-w-[4.75rem] flex-col items-center rounded-lg border px-3 py-2 text-center",
+        "inline-flex min-w-[4.75rem] flex-col items-center rounded-2xl border px-3 py-1 text-center leading-tight",
         statusStyles[display.status],
       )}
       title={display.title}
     >
-      <span className="text-xs font-semibold uppercase tracking-wide leading-tight">
-        {display.dayLabel}
+      <span className="text-[11px] font-semibold">{display.dayLabel}</span>
+      <span className="time mt-0.5 text-xs font-medium tabular-nums leading-tight">
+        at {display.timeLabel}
       </span>
-      <span className="time mt-0.5 text-sm font-medium tabular-nums leading-tight">
-        {display.timeLabel}
-      </span>
-    </div>
+    </span>
   );
 }
