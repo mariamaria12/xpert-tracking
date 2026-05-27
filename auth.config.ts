@@ -11,8 +11,11 @@ export const authConfig = {
       const isOnDashboard = pathname.startsWith('/dashboard');
       const isAuthPage = pathname === '/login' || pathname === '/';
 
-      if (isOnDashboard) {
-        return isLoggedIn;
+      // Return a redirect (not `false`) when custom middleware is chained:
+      // NextAuth still runs the inner handler if `authorized` is false, which
+      // would otherwise always call through to `NextResponse.next()`.
+      if (isOnDashboard && !isLoggedIn) {
+        return Response.redirect(new URL('/login', nextUrl));
       }
 
       if (isLoggedIn && isAuthPage) {
