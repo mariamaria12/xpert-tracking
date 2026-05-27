@@ -2,6 +2,10 @@ import React from "react";
 
 import type { DataTableColumn } from "@/ui/table/DataTable";
 import EditEmployeeDialog from "./EditEmployeeDialog";
+import HoursWeekCard from "./HoursWeekCard";
+import LastLogCard from "./LastLogCard";
+import type { HoursWeekDisplay } from "./hoursWeekDisplay";
+import type { LastLogDisplay } from "./lastLogDisplay";
 
 export type PeopleRow = {
   id: string;
@@ -11,31 +15,23 @@ export type PeopleRow = {
   phone: string | null;
   role: string | null;
   assignedProject: string | null;
-  hoursPerWeek: number | null;
+  lastLog: LastLogDisplay | null;
+  hoursWeek: HoursWeekDisplay | null;
 };
-
-function formatHoursPerWeek(hours: number) {
-  return new Intl.NumberFormat("en-US", {
-    maximumFractionDigits: 1,
-    minimumFractionDigits: 1,
-  }).format(hours);
-}
 
 export const peopleColumns: DataTableColumn<PeopleRow>[] = [
   {
     id: "name",
-    header: "First name & Last name",
+    header: "Name",
     cell: (row) => (
-      <span className="font-medium text-white/80">
-        {row.firstName} {row.lastName}
-      </span>
-    ),
-  },
-  {
-    id: "role",
-    header: "Role",
-    cell: (row) => (
-      <span className="text-white/80">{row.role ?? "—"}</span>
+      <div className="flex flex-col">
+        <span className="font-medium text-white/80">
+          {row.firstName} {row.lastName}
+        </span>
+        <span className="text-white/50 text-sm">
+          {row.role ?? "—"}
+        </span>
+      </div>
     ),
   },
   {
@@ -62,23 +58,20 @@ export const peopleColumns: DataTableColumn<PeopleRow>[] = [
     ),
   },
   {
+    id: "lastLog",
+    header: "Last log",
+    cell: (row) => <LastLogCard display={row.lastLog} />,
+  },
+  {
     id: "hoursPerWeek",
     header: "Hours/week",
-    cell: (row) =>
-      row.hoursPerWeek === null ? (
-        <span className="text-white/30">—</span>
-      ) : (
-        <span className="text-white/80">{formatHoursPerWeek(row.hoursPerWeek)}</span>
-      ),
+    cell: (row) => <HoursWeekCard display={row.hoursWeek} />,
   },
   {
     id: "actions",
     header: "Actions",
-    cell: (row) => (
-      <div className="flex justify-end">
-        <EditEmployeeDialog row={row} />
-      </div>
-    ),
+    align: "right",
+    cell: (row) => <EditEmployeeDialog row={row} />,
   },
 ];
 

@@ -2,12 +2,15 @@ import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 
 import type { PeopleRow } from "./columns";
+import { getHoursWeekDisplay } from "./hoursWeekDisplay";
+import { getLastLogDisplay } from "./lastLogDisplay";
 
 type TimeLogRow = {
   employee_id: string;
   duration_minutes: number | null;
   project_id: string;
   projects?: { name: string | null } | { name: string | null }[] | null;
+  started_at?: string | null;
 };
 
 type EmployeeRow = {
@@ -94,6 +97,31 @@ export async function getPeopleRows(): Promise<PeopleRowsResult> {
     perProject.set(projectName, (perProject.get(projectName) ?? 0) + minutes);
   }
 
+  const employeeIds = ((employees ?? []) as EmployeeRow[]).map((e) => String(e.id));
+  const lastLogAtByEmployee = new Map<string, string>();
+
+  if (employeeIds.length > 0) {
+    const { data: lastLogs, error: lastLogsError } = await supabase
+      .from("time_logs")
+      .select("employee_id, started_at")
+      .in("employee_id", employeeIds)
+      .order("started_at", { ascending: false })
+      .limit(5000);
+
+    if (lastLogsError) {
+      console.error("Failed to load last logs:", lastLogsError);
+    } else {
+      for (const row of (lastLogs ?? []) as { employee_id: string; started_at: string }[]) {
+        if (!row.employee_id || !row.started_at) continue;
+        if (!lastLogAtByEmployee.has(row.employee_id)) {
+          lastLogAtByEmployee.set(row.employee_id, row.started_at);
+        }
+      }
+    }
+  }
+
+  const now = new Date();
+
   const rows: PeopleRow[] = ((employees ?? []) as EmployeeRow[]).map((emp) => {
     const employeeId = String(emp.id);
     const totalMinutes = totalMinutesByEmployee.get(employeeId) ?? 0;
@@ -121,7 +149,14 @@ export async function getPeopleRows(): Promise<PeopleRowsResult> {
       phone: emp.phone ? String(emp.phone) : null,
       role: emp.role ? String(emp.role) : null,
       assignedProject,
-      hoursPerWeek: totalMinutes > 0 ? totalMinutes / 60 : null,
+      lastLog: getLastLogDisplay(
+        lastLogAtByEmployee.get(employeeId) ?? null,
+        now,
+      ),
+      hoursWeek: getHoursWeekDisplay(
+        totalMinutes > 0 ? totalMinutes / 60 : 0,
+        now,
+      ),
     };
   });
 

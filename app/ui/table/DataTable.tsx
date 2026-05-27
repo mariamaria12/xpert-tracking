@@ -2,13 +2,14 @@
 
 import { cn } from "@/lib/utils";
 import { Columns3 } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 export type DataTableColumn<T> = {
   id: string;
   header: React.ReactNode;
   cell: (row: T) => React.ReactNode;
   visibleByDefault?: boolean;
+  align?: "left" | "right";
 };
 
 export type DataTableEmptyState = {
@@ -42,6 +43,24 @@ export default function DataTable<T>({
   }, [columns]);
 
   const [visibleColumnIds, setVisibleColumnIds] = useState<string[]>(initialVisible);
+  const [columnsOpen, setColumnsOpen] = useState(false);
+  const columnsMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!columnsOpen) return;
+
+    function handlePointerDown(event: PointerEvent) {
+      if (
+        columnsMenuRef.current &&
+        !columnsMenuRef.current.contains(event.target as Node)
+      ) {
+        setColumnsOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [columnsOpen]);
 
   const visibleColumns = useMemo(() => {
     const visibleSet = new Set(visibleColumnIds);
@@ -62,50 +81,59 @@ export default function DataTable<T>({
 
   const empty = emptyState ?? { title: "No results" };
 
+  const showColumnToggle = columns.length > 1;
+  const columnCount =
+    visibleColumns.length + (showColumnToggle ? 1 : 0);
+
+  const columnToggleMenu = showColumnToggle ? (
+    <div ref={columnsMenuRef} className="relative">
+      <button
+        type="button"
+        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/60 transition hover:bg-white/10 hover:text-white/80"
+        aria-label="Toggle columns"
+        aria-expanded={columnsOpen}
+        onClick={() => setColumnsOpen((open) => !open)}
+      >
+        <Columns3 className="h-4 w-4" aria-hidden />
+      </button>
+      {columnsOpen ? (
+        <div className="absolute right-0 z-10 mt-2 w-64 rounded-xl border border-white/10 bg-[#111827] p-3 shadow-lg">
+          <p className="mb-2 text-xs font-medium uppercase tracking-wider text-white/50">
+            Column visibility
+          </p>
+          <div className="space-y-2">
+            {columns.map((col) => {
+              const isVisible = visibleColumnIds.includes(col.id);
+              const isLastVisible = isVisible && visibleColumnIds.length <= 1;
+              return (
+                <label
+                  key={col.id}
+                  className={cn(
+                    "flex items-center gap-2 text-sm text-white/70",
+                    isLastVisible ? "opacity-50" : "cursor-pointer",
+                  )}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isVisible}
+                    disabled={isLastVisible}
+                    onChange={() => toggleColumn(col.id)}
+                    className="h-4 w-4 accent-cyan-400"
+                  />
+                  <span className="truncate">{col.header}</span>
+                </label>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  ) : null;
+
   return (
     <div className={cn("space-y-4", className)}>
-      <div className="flex items-center justify-between gap-3">
-        <div className="text-sm text-white/50">
-          {data.length === 1 ? "1 result" : `${data.length} results`}
-        </div>
-
-        {columns.length > 1 ? (
-          <details className="relative">
-            <summary className="btn-accent cursor-pointer select-none list-none inline-flex items-center gap-2">
-              <Columns3 className="h-4 w-4" aria-hidden />
-              Columns
-            </summary>
-            <div className="absolute right-0 z-10 mt-2 w-64 rounded-xl border border-white/10 bg-[#111827] p-3 shadow-lg">
-              <p className="mb-2 text-xs font-medium uppercase tracking-wider text-white/50">
-                Column visibility
-              </p>
-              <div className="space-y-2">
-                {columns.map((col) => {
-                  const isVisible = visibleColumnIds.includes(col.id);
-                  const isLastVisible = isVisible && visibleColumnIds.length <= 1;
-                  return (
-                    <label
-                      key={col.id}
-                      className={cn(
-                        "flex items-center gap-2 text-sm text-white/70",
-                        isLastVisible ? "opacity-50" : "cursor-pointer",
-                      )}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isVisible}
-                        disabled={isLastVisible}
-                        onChange={() => toggleColumn(col.id)}
-                        className="h-4 w-4 accent-cyan-400"
-                      />
-                      <span className="truncate">{col.header}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-          </details>
-        ) : null}
+      <div className="text-sm text-white/50">
+        {data.length === 1 ? "1 result" : `${data.length} results`}
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-white/10">
@@ -113,16 +141,27 @@ export default function DataTable<T>({
           <thead>
             <tr className="bg-white/5 text-xs uppercase tracking-wider text-white/50">
               {visibleColumns.map((col) => (
-                <th key={col.id} className="p-4 font-medium">
+                <th
+                  key={col.id}
+                  className={cn(
+                    "p-4 font-medium",
+                    col.align === "right" && "text-right",
+                  )}
+                >
                   {col.header}
                 </th>
               ))}
+              {showColumnToggle ? (
+                <th className="w-12 p-4 font-medium">
+                  <div className="flex justify-end">{columnToggleMenu}</div>
+                </th>
+              ) : null}
             </tr>
           </thead>
           <tbody>
             {data.length === 0 ? (
               <tr className="border-t border-white/10 text-white/20">
-                <td colSpan={Math.max(1, visibleColumns.length)}>
+                <td colSpan={Math.max(1, columnCount)}>
                   <div className="flex flex-col items-center justify-center py-12 text-center">
                     {empty.icon ? (
                       <div className="mb-4 inline-flex rounded-xl bg-cyan-400/10 p-3 text-cyan-400">
@@ -143,10 +182,19 @@ export default function DataTable<T>({
                   className="border-t border-white/10 text-white/20 transition hover:bg-white/5"
                 >
                   {visibleColumns.map((col) => (
-                    <td key={col.id} className="p-4">
+                    <td
+                      key={col.id}
+                      className={cn(
+                        "p-4",
+                        col.align === "right" && "text-right",
+                      )}
+                    >
                       {col.cell(row)}
                     </td>
                   ))}
+                  {showColumnToggle ? (
+                    <td className="w-12 p-4" aria-hidden />
+                  ) : null}
                 </tr>
               ))
             )}
