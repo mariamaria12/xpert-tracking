@@ -14,6 +14,7 @@ type ProjectDbRow = {
 
 type TimeLogDbRow = {
   project_id: string;
+  employee_id: string;
   duration_minutes: number | null;
   started_at: string;
   ended_at: string | null;
@@ -41,7 +42,7 @@ export async function getProjectRows(): Promise<ProjectRowsResult> {
         .order("name", { ascending: true }),
       supabase
         .from("time_logs")
-        .select("project_id, duration_minutes, started_at, ended_at"),
+        .select("project_id, employee_id, duration_minutes, started_at, ended_at"),
     ]);
 
   if (projectsError) {
@@ -55,6 +56,7 @@ export async function getProjectRows(): Promise<ProjectRowsResult> {
   }
 
   const actualMinutesByProjectId = new Map<string, number>();
+  const workersByProjectId = new Map<string, Set<string>>();
 
   for (const log of (timeLogs ?? []) as TimeLogDbRow[]) {
     const minutes = Number(log.duration_minutes ?? 0);
@@ -62,6 +64,13 @@ export async function getProjectRows(): Promise<ProjectRowsResult> {
       log.project_id,
       (actualMinutesByProjectId.get(log.project_id) ?? 0) + minutes,
     );
+
+    let workers = workersByProjectId.get(log.project_id);
+    if (!workers) {
+      workers = new Set<string>();
+      workersByProjectId.set(log.project_id, workers);
+    }
+    workers.add(log.employee_id);
   }
 
   const rows: ProjectRow[] = ((projects ?? []) as ProjectDbRow[]).map((p) => ({
@@ -70,6 +79,7 @@ export async function getProjectRows(): Promise<ProjectRowsResult> {
     companyName: pickCompanyName(p.clients),
     estimatedHours: p.estimated_hours === null ? null : Number(p.estimated_hours),
     actualHours: (actualMinutesByProjectId.get(p.id) ?? 0) / 60,
+    workers: workersByProjectId.get(p.id)?.size ?? 0,
     status: p.status,
     dueDate: p.due_date ? new Date(p.due_date) : null,
   }));

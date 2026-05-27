@@ -9,6 +9,7 @@ export type ProjectRow = {
   companyName: string;
   estimatedHours: number | null;
   actualHours: number;
+  workers: number;
   status: string;
   dueDate: Date | null;
 };
@@ -92,14 +93,22 @@ function DueDateCell({
     referenceDate: new Date(),
   });
 
-  const className =
+  const bulletClassName =
     tone === "red"
-      ? "text-red-300"
+      ? "bg-red-400"
       : tone === "orange"
-        ? "text-amber-300"
-        : "text-emerald-300";
+        ? "bg-amber-400"
+        : "bg-emerald-400";
 
-  return <span className={cn("font-medium", className)}>{formatDate(dueDate)}</span>;
+  return (
+    <span className="inline-flex items-center gap-2 text-white/80">
+      <span
+        className={cn("h-2 w-2 rounded-full", bulletClassName)}
+        aria-hidden
+      />
+      <span>{formatDate(dueDate)}</span>
+    </span>
+  );
 }
 
 export const projectColumns: DataTableColumn<ProjectRow>[] = [
@@ -124,6 +133,12 @@ export const projectColumns: DataTableColumn<ProjectRow>[] = [
     header: "Actual hours",
     align: "right",
     cell: (row) => <span className="text-white/80">{formatHours(row.actualHours)}</span>,
+  },
+  {
+    id: "workers",
+    header: "Workers",
+    align: "right",
+    cell: (row) => <span className="text-white/80">{row.workers}</span>,
   },
   {
     id: "status",
