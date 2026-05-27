@@ -1,16 +1,25 @@
 'use server';
 
-import { signIn } from "auth";
+import { signIn, signOut } from "auth";
 import { AuthError } from "next-auth";
+import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/server";
 
 export async function authenticate(
     prevState: string | undefined,
     formData: FormData,
   ) {
+    const email = formData.get('email');
+    const password = formData.get('password');
+
+    if (typeof email !== 'string' || typeof password !== 'string') {
+      return 'Invalid credentials.';
+    }
+
     try {
       await signIn('credentials', {
-        email: formData.get('email'),
-        password: formData.get('password'),
+        email,
+        password,
         redirectTo: '/dashboard',
       });
     } catch (error) {
@@ -25,4 +34,10 @@ export async function authenticate(
       throw error;
     }
   }
-  
+
+export async function logout() {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+  await supabase.auth.signOut();
+  await signOut({ redirectTo: "/login" });
+}

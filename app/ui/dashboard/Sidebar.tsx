@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import { logout } from "@/lib/actions";
 import {
   Clock,
   FolderKanban,
@@ -23,7 +24,6 @@ const mainNav = [
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const router = useRouter();
 
   function isActive(href: string) {
     if (href === "/dashboard") {
@@ -57,14 +57,12 @@ export default function Sidebar() {
             <Settings2 className="h-5 w-5 shrink-0" aria-hidden />
             <span>Settings</span>
           </Link>
-          <button
-            type="button"
-            className="nav-idle w-full text-left"
-            onClick={() => router.push("/login")}
-          >
-            <LogOut className="h-5 w-5 shrink-0" aria-hidden />
-            <span>Logout</span>
-          </button>
+          <form action={logout}>
+            <button type="submit" className="nav-idle w-full text-left">
+              <LogOut className="h-5 w-5 shrink-0" aria-hidden />
+              <span>Logout</span>
+            </button>
+          </form>
         </div>
       </nav>
     </aside>
