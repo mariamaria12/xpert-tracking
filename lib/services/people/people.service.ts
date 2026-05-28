@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 
 import { createClient } from "@/lib/supabase/server";
+import type { Database } from "@/lib/types/database";
 
 import { getHoursWeekDisplay } from "@/dashboard/people/hoursWeekDisplay";
 import { getLastLogDisplay } from "@/dashboard/people/lastLogDisplay";
@@ -13,21 +14,17 @@ import type {
 } from "./people.types";
 
 type TimeLogRow = {
-  employee_id: string;
-  duration_minutes: number | null;
-  project_id: string;
+  employee_id: Database["public"]["Tables"]["time_logs"]["Row"]["employee_id"];
+  duration_minutes: Database["public"]["Tables"]["time_logs"]["Row"]["duration_minutes"];
+  project_id: Database["public"]["Tables"]["time_logs"]["Row"]["project_id"];
   projects?: { name: string | null } | { name: string | null }[] | null;
   started_at?: string | null;
 };
 
-type EmployeeDbRow = {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string | null;
-  phone: string | null;
-  role: string | null;
-};
+type EmployeeDbRow = Pick<
+  Database["public"]["Tables"]["employees"]["Row"],
+  "id" | "first_name" | "last_name" | "email" | "phone" | "role"
+>;
 
 function toNullIfEmpty(value: string | undefined) {
   const trimmed = value?.trim() ?? "";
@@ -197,7 +194,7 @@ export async function createEmployeeRecord({
     phone: toNullIfEmpty(input.phone),
     role: toNullIfEmpty(input.role),
     created_by: resolvedUserId,
-  });
+  } satisfies Database["public"]["Tables"]["employees"]["Insert"]);
 
   if (error) {
     console.error("Failed to create employee:", error);
@@ -223,7 +220,7 @@ export async function updateEmployeeRecord({
       email: toNullIfEmpty(input.email),
       phone: toNullIfEmpty(input.phone),
       role: toNullIfEmpty(input.role),
-    })
+    } satisfies Database["public"]["Tables"]["employees"]["Update"])
     .eq("id", input.id);
 
   if (error) {

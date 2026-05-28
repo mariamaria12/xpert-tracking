@@ -1,30 +1,22 @@
 import { cookies } from "next/headers";
 
 import { createClient } from "@/lib/supabase/server";
+import type { Database } from "@/lib/types/database";
 
 import type { ClientCreateInput, ClientRow, ClientRowsResult, ClientUpdateInput } from "./clients.types";
 
-type ClientDbRow = {
-  id: string;
-  company_name: string;
-  industry: string | null;
-  contact_person: string | null;
-  email: string | null;
-  phone: string | null;
-  delivery_address: string | null;
-  billing_address: string | null;
-  status: string | null;
-  notes: string | null;
-};
+type ClientDbRow = Database["public"]["Tables"]["clients"]["Row"];
 
-type ProjectDbRow = {
-  id: string;
-  client_id: string;
-};
+type ProjectDbRow = Pick<Database["public"]["Tables"]["projects"]["Row"], "id" | "client_id">;
 
 function toNullIfEmpty(value: string | undefined) {
   const trimmed = value?.trim() ?? "";
   return trimmed.length ? trimmed : null;
+}
+
+function toUndefinedIfEmpty(value: string | undefined) {
+  const trimmed = value?.trim() ?? "";
+  return trimmed.length ? trimmed : undefined;
 }
 
 export async function getClientRows(): Promise<ClientRowsResult> {
@@ -111,10 +103,10 @@ export async function createClientCompany({
     phone: toNullIfEmpty(input.phone),
     billing_address: toNullIfEmpty(input.billingAddress),
     delivery_address: toNullIfEmpty(input.deliveryAddress),
-    status: toNullIfEmpty(input.status),
+    status: toUndefinedIfEmpty(input.status),
     notes: toNullIfEmpty(input.notes),
     created_by: resolvedUserId,
-  });
+  } satisfies Database["public"]["Tables"]["clients"]["Insert"]);
 
   if (error) {
     console.error("Failed to create client:", error);
@@ -142,9 +134,9 @@ export async function updateClientCompany({
       phone: toNullIfEmpty(input.phone),
       billing_address: toNullIfEmpty(input.billingAddress),
       delivery_address: toNullIfEmpty(input.deliveryAddress),
-      status: toNullIfEmpty(input.status),
+      status: toUndefinedIfEmpty(input.status),
       notes: toNullIfEmpty(input.notes),
-    })
+    } satisfies Database["public"]["Tables"]["clients"]["Update"])
     .eq("id", input.id);
 
   if (error) {
