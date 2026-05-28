@@ -4,20 +4,7 @@ import type { DataTableColumn } from "@/ui/table/DataTable";
 import EditEmployeeDialog from "./EditEmployeeDialog";
 import HoursWeekCard from "./HoursWeekCard";
 import LastLogCard from "./LastLogCard";
-import type { HoursWeekDisplay } from "./hoursWeekDisplay";
-import type { LastLogDisplay } from "./lastLogDisplay";
-
-export type PeopleRow = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string | null;
-  phone: string | null;
-  role: string | null;
-  assignedProject: string | null;
-  lastLog: LastLogDisplay | null;
-  hoursWeek: HoursWeekDisplay | null;
-};
+import type { PeopleRow } from "@/lib/services/people/people.types";
 
 export const peopleColumns: DataTableColumn<PeopleRow>[] = [
   {

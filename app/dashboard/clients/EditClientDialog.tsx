@@ -53,9 +53,11 @@ export default function EditClientDialog({ row }: { row: ClientRow }) {
     if (state?.success) {
       dialogRef.current?.close();
     }
-  }, [state?.success]);
+  }, [state]);
 
   function openDialog() {
+    // Reset the form to defaults and clear any previous field errors.
+    formRef.current?.reset();
     dialogRef.current?.showModal();
   }
 

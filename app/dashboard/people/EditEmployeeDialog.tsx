@@ -3,10 +3,10 @@
 import { Pencil } from "lucide-react";
 import { useActionState, useEffect, useMemo, useRef } from "react";
 
-import type { PeopleRow } from "./columns";
+import type { PeopleRow } from "@/lib/services/people/people.types";
+import type { EmployeeFormState } from "@/lib/services/people/people.types";
 import {
   updateEmployee,
-  type UpdateEmployeeFormState,
 } from "./actions";
 
 const inputClassName =
@@ -33,7 +33,7 @@ export default function EditEmployeeDialog({ row }: { row: PeopleRow }) {
   );
 
   const [state, formAction, isPending] = useActionState<
-    UpdateEmployeeFormState,
+    EmployeeFormState,
     FormData
   >(updateEmployee, undefined);
 

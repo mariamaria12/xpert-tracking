@@ -3,10 +3,8 @@
 import { Plus } from "lucide-react";
 import { useActionState, useEffect, useRef } from "react";
 
-import {
-  createEmployee,
-  type CreateEmployeeFormState,
-} from "./actions";
+import type { EmployeeFormState } from "@/lib/services/people/people.types";
+import { createEmployee } from "./actions";
 
 const inputClassName =
   "w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-400";
@@ -20,7 +18,7 @@ export default function AddEmployeeDialog() {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction, isPending] = useActionState<
-    CreateEmployeeFormState,
+    EmployeeFormState,
     FormData
   >(createEmployee, undefined);
 
