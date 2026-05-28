@@ -1,6 +1,5 @@
 "use server";
 
-import { auth } from "auth";
 import { revalidatePath } from "next/cache";
 import {
   getProjectFieldErrors,
@@ -12,6 +11,7 @@ import {
   updateProjectRecord,
 } from "@/lib/services/projects/projects.service";
 import type { ProjectFormState } from "@/lib/services/projects/projects.types";
+import { requireUserId } from "@/lib/auth/supabaseAuth";
 
 export async function createProject(
   _prevState: ProjectFormState,
@@ -23,10 +23,10 @@ export async function createProject(
     return { errors: getProjectFieldErrors(parsed.error) };
   }
 
-  const session = await auth();
+  const createdBy = await requireUserId();
   const result = await createProjectRecord({
     input: parsed.data,
-    createdBy: session?.user?.id,
+    createdBy,
   });
 
   if (result.validationErrors) {

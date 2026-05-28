@@ -1,9 +1,8 @@
 'use server';
 
-import { signIn, signOut } from "auth";
-import { AuthError } from "next-auth";
-import { cookies } from "next/headers";
-import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+
+import { signInWithPassword, signOut } from "./supabaseAuth";
 
 export async function authenticate(
     prevState: string | undefined,
@@ -16,28 +15,16 @@ export async function authenticate(
       return 'Invalid credentials.';
     }
 
-    try {
-      await signIn('credentials', {
-        email,
-        password,
-        redirectTo: '/dashboard',
-      });
-    } catch (error) {
-      if (error instanceof AuthError) {
-        switch (error.type) {
-          case 'CredentialsSignin':
-            return 'Invalid credentials.';
-          default:
-            return 'Something went wrong.';
-        }
-      }
-      throw error;
+    const { data, error } = await signInWithPassword(email, password);
+
+    if (error || !data.user) {
+      return "Invalid credentials.";
     }
+
+    redirect("/dashboard");
   }
 
 export async function logout() {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-  await supabase.auth.signOut();
-  await signOut({ redirectTo: "/login" });
+  await signOut();
+  redirect("/login");
 }

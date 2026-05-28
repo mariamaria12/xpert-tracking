@@ -1,6 +1,5 @@
 "use server";
 
-import { auth } from "auth";
 import { revalidatePath } from "next/cache";
 import {
   getEmployeeFieldErrors,
@@ -12,6 +11,7 @@ import {
   updateEmployeeRecord,
 } from "@/lib/services/people/people.service";
 import type { EmployeeFormState } from "@/lib/services/people/people.types";
+import { requireUserId } from "@/lib/auth/supabaseAuth";
 
 export async function createEmployee(
   _prevState: EmployeeFormState,
@@ -23,10 +23,10 @@ export async function createEmployee(
     return { errors: getEmployeeFieldErrors(parsed.error) };
   }
 
-  const session = await auth();
+  const createdBy = await requireUserId();
   const { error } = await createEmployeeRecord({
     input: parsed.data,
-    createdBy: session?.user?.id,
+    createdBy,
   });
 
   if (error) {

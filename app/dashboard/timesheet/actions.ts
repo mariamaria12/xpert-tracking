@@ -1,6 +1,5 @@
 "use server";
 
-import { auth } from "auth";
 import { revalidatePath } from "next/cache";
 import {
   getTimesheetFieldErrors,
@@ -12,6 +11,7 @@ import {
   updateTimesheetRecord,
 } from "@/lib/services/timesheet/timesheet.service";
 import type { TimesheetFormState } from "@/lib/services/timesheet/timesheet.types";
+import { requireUserId } from "@/lib/auth/supabaseAuth";
 
 export async function createTimesheet(
   _prevState: TimesheetFormState,
@@ -23,10 +23,10 @@ export async function createTimesheet(
     return { errors: getTimesheetFieldErrors(parsed.error) };
   }
 
-  const session = await auth();
+  const createdBy = await requireUserId();
   const result = await createTimesheetRecord({
     input: parsed.data,
-    createdBy: session?.user?.id,
+    createdBy,
   });
 
   if (result.validationErrors) {

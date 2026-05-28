@@ -1,16 +1,16 @@
 import { redirect } from "next/navigation";
 
 import DashboardShell from "@/ui/dashboard/DashboardShell";
-import { auth } from "auth";
+import { getUser } from "@/lib/auth/supabaseAuth";
 
 export default async function DashboardLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
+  const user = await getUser();
 
-  if (!session?.user) {
+  if (!user) {
     redirect("/login");
   }
 
