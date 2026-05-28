@@ -5,11 +5,15 @@ import type { Database } from "@/lib/types/database";
 
 import { isActiveHomeProject } from "@/lib/services/projects/projectStatuses";
 
-import type { ActiveProjectSummary, HomeDashboardData } from "./home.types";
+import type {
+  ActiveClientSummary,
+  ActiveProjectSummary,
+  HomeDashboardData,
+} from "./home.types";
 
 type ActiveProjectDbRow = Pick<
   Database["public"]["Tables"]["projects"]["Row"],
-  "id" | "name" | "status" | "estimated_hours" | "due_date"
+  "id" | "name" | "status" | "estimated_hours" | "due_date" | "client_id"
 > & {
   clients?: { company_name: string | null } | { company_name: string | null }[] | null;
 };
@@ -41,7 +45,7 @@ export async function getHomeDashboardData(): Promise<HomeDashboardData> {
     supabase.from("time_logs").select("project_id, duration_minutes"),
     supabase
       .from("projects")
-      .select("id, name, status, estimated_hours, due_date, clients(company_name)")
+      .select("id, name, status, estimated_hours, due_date, client_id, clients(company_name)")
       .order("due_date", { ascending: true }),
   ]);
 
@@ -72,11 +76,34 @@ export async function getHomeDashboardData(): Promise<HomeDashboardData> {
           dueDate: p.due_date ? new Date(p.due_date) : null,
         }));
 
+  const activeClients: ActiveClientSummary[] = activeProjectsError
+    ? []
+    : (() => {
+        const byClientId = new Map<string, ActiveClientSummary>();
+        for (const p of (activeProjects ?? []) as ActiveProjectDbRow[]) {
+          if (!isActiveHomeProject(p.status)) continue;
+          const clientId = p.client_id;
+          if (!clientId) continue;
+          const companyName = pickCompanyName(p.clients);
+          const current = byClientId.get(clientId);
+          byClientId.set(clientId, {
+            id: clientId,
+            companyName,
+            activeProjectsCount: (current?.activeProjectsCount ?? 0) + 1,
+          });
+        }
+        return Array.from(byClientId.values()).sort((a, b) =>
+          a.companyName.localeCompare(b.companyName),
+        );
+      })();
+
   return {
     teamMembersCount: teamMembersError || teamMembersCount === null ? null : teamMembersCount,
     hoursLogged: totalMinutes === null ? null : totalMinutes / 60,
     // Keep count in sync with the list below (same filter).
     activeProjectsCount: activeProjectsError ? null : projects.length,
+    activeClientsCount: activeProjectsError ? null : activeClients.length,
+    activeClients,
     activeProjects: projects,
   };
 }

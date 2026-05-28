@@ -1,6 +1,7 @@
-import { Clock, FolderKanban, Users, Wrench } from "lucide-react";
+import { Clock, FolderKanban, Users, Building2 } from "lucide-react";
 import StatCard from "@/ui/dashboard/StatCard";
 
+import ActiveClientsPanel from "./ActiveClientsPanel";
 import ActiveProjectsPanel from "./ActiveProjectsPanel";
 import { getHomeDashboardData } from "./getHomeData";
 
@@ -12,8 +13,14 @@ function formatHours(hours: number) {
 }
 
 export default async function DashboardHomePage() {
-  const { teamMembersCount, hoursLogged, activeProjectsCount, activeProjects } =
-    await getHomeDashboardData();
+  const {
+    teamMembersCount,
+    hoursLogged,
+    activeProjectsCount,
+    activeClientsCount,
+    activeClients,
+    activeProjects,
+  } = await getHomeDashboardData();
 
   const activeProjectsValue =
     activeProjectsCount === null ? "—" : activeProjectsCount;
@@ -24,6 +31,9 @@ export default async function DashboardHomePage() {
   const hoursLoggedValue =
     hoursLogged === null ? "—" : formatHours(hoursLogged);
 
+  const activeClientsValue =
+    activeClientsCount === null ? "—" : activeClientsCount;
+
   return (
     <div>
       <h1 className="mb-8 text-2xl font-bold text-white">Home</h1>
@@ -31,9 +41,12 @@ export default async function DashboardHomePage() {
         <StatCard title="Active Projects" value={activeProjectsValue} icon={FolderKanban} />
         <StatCard title="Team Members" value={teamMembersValue} icon={Users} />
         <StatCard title="Hours Logged" value={hoursLoggedValue} icon={Clock} />
-        <StatCard title="Tools Available" value="—" icon={Wrench} />
+        <StatCard title="Active Clients" value={activeClientsValue} icon={Building2} />
       </div>
-      <ActiveProjectsPanel projects={activeProjects} />
+      <div className="grid gap-6 lg:grid-cols-2">
+        <ActiveProjectsPanel projects={activeProjects} />
+        <ActiveClientsPanel clients={activeClients} />
+      </div>
     </div>
   );
 }

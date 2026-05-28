@@ -12,6 +12,14 @@ export type HomeDashboardData = {
   teamMembersCount: number | null;
   hoursLogged: number | null;
   activeProjectsCount: number | null;
+  activeClientsCount: number | null;
+  activeClients: ActiveClientSummary[];
   activeProjects: ActiveProjectSummary[];
+};
+
+export type ActiveClientSummary = {
+  id: string;
+  companyName: string;
+  activeProjectsCount: number;
 };
 
