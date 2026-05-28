@@ -3,8 +3,9 @@
 import { Pencil } from "lucide-react";
 import { useActionState, useEffect, useMemo, useRef } from "react";
 
-import type { ClientRow } from "./columns";
-import { updateCompany, type ClientFormState } from "./actions";
+import type { ClientRow } from "@/lib/services/client/clients.types";
+import type { ClientFormState } from "@/lib/services/client/clients.types";
+import { updateCompany } from "./actions";
 
 const inputClassName =
   "w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-400";

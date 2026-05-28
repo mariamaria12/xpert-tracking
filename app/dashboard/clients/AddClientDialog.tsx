@@ -3,7 +3,8 @@
 import { Plus } from "lucide-react";
 import { useActionState, useEffect, useRef } from "react";
 
-import { createCompany, type ClientFormState } from "./actions";
+import type { ClientFormState } from "@/lib/services/client/clients.types";
+import { createCompany } from "./actions";
 
 const inputClassName =
   "w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-400";

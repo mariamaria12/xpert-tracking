@@ -11,6 +11,9 @@ type NestedName =
   | { first_name?: string | null; last_name?: string | null; name?: string | null }[]
   | null;
 
+type EmployeeName = { first_name?: string | null; last_name?: string | null };
+type ProjectName = { name?: string | null };
+
 type TimeLogDbRow = {
   id: string;
   employee_id: string;
@@ -24,7 +27,7 @@ type TimeLogDbRow = {
   projects?: NestedName;
 };
 
-function pickNested<T extends { name?: string | null }>(
+function pickNested<T extends Record<string, unknown>>(
   value: NestedName,
   format: (item: T) => string,
 ): string | null {
@@ -35,7 +38,7 @@ function pickNested<T extends { name?: string | null }>(
 }
 
 function formatEmployeeName(value: NestedName) {
-  return pickNested(value, (emp) => {
+  return pickNested<EmployeeName>(value, (emp) => {
     const first = emp.first_name?.trim() ?? "";
     const last = emp.last_name?.trim() ?? "";
     const full = `${first} ${last}`.trim();
@@ -44,7 +47,7 @@ function formatEmployeeName(value: NestedName) {
 }
 
 function formatProjectName(value: NestedName) {
-  return pickNested(value, (project) => project.name?.trim() || "—");
+  return pickNested<ProjectName>(value, (project) => project.name?.trim() || "—");
 }
 
 export type TimesheetRowsResult =
@@ -104,8 +107,8 @@ export async function getTimesheetRows(): Promise<TimesheetRowsResult> {
       id: log.id,
       employeeId: log.employee_id,
       projectId: log.project_id,
-      employeeName: formatEmployeeName(log.employees) ?? "—",
-      projectName: formatProjectName(log.projects) ?? "—",
+      employeeName: formatEmployeeName(log.employees ?? null) ?? "—",
+      projectName: formatProjectName(log.projects ?? null) ?? "—",
       dateLabel: Number.isNaN(startedAt.getTime())
         ? "—"
         : formatDate(startedAt),

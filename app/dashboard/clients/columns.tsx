@@ -3,19 +3,7 @@ import React from "react";
 import type { DataTableColumn } from "@/ui/table/DataTable";
 import EditClientDialog from "./EditClientDialog";
 
-export type ClientRow = {
-  id: string;
-  companyName: string;
-  industry: string | null;
-  contactPerson: string | null;
-  email: string | null;
-  phone: string | null;
-  deliveryAddress: string | null;
-  billingAddress: string | null;
-  status: string | null;
-  notes: string | null;
-  projectCount: number;
-};
+import type { ClientRow } from "@/lib/services/client/clients.types";
 
 export const clientColumns: DataTableColumn<ClientRow>[] = [
   {
