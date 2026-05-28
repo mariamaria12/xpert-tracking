@@ -11,7 +11,6 @@ import {
   FolderKanban,
   LayoutDashboard,
   LogOut,
-  Settings2,
   Truck,
   Users,
   Handshake,
@@ -106,18 +105,6 @@ export default function Sidebar({ expanded, onToggle }: SidebarProps) {
           );
         })}
         <div className="mt-auto flex flex-col gap-1 pt-4">
-          <Link
-            href="/dashboard/settings"
-            title={expanded ? undefined : "Settings"}
-            aria-label="Settings"
-            className={navLinkClass(
-              pathname.startsWith("/dashboard/settings"),
-              expanded,
-            )}
-          >
-            <Settings2 className="h-5 w-5 shrink-0" aria-hidden />
-            {expanded ? <span>Settings</span> : null}
-          </Link>
           <form action={logout}>
             <button
               type="submit"

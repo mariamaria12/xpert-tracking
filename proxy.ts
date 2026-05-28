@@ -1,10 +1,11 @@
-import { updateSession } from '@/lib/supabase/middleware';
 import { createServerClient } from "@supabase/ssr";
+
+import { updateSession } from "@/lib/supabase/middleware";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
-export default async function middleware(request: Parameters<typeof updateSession>[0]) {
+export default async function proxy(request: Parameters<typeof updateSession>[0]) {
   const response = await updateSession(request);
 
   const supabase = createServerClient(supabaseUrl!, supabaseKey!, {
@@ -40,5 +41,6 @@ export default async function middleware(request: Parameters<typeof updateSessio
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)'],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)"],
 };
+
