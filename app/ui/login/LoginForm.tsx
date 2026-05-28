@@ -34,6 +34,7 @@ export default function LoginForm({ headingId }: LoginFormProps) {
           type="email"
           name="email"
           placeholder="Enter your email address"
+          autoComplete="email"
           required
         />
       </div>
@@ -47,6 +48,7 @@ export default function LoginForm({ headingId }: LoginFormProps) {
           type="password"
           name="password"
           placeholder="Enter password"
+          autoComplete="current-password"
           required
           minLength={6}
         />

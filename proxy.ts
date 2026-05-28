@@ -1,39 +1,23 @@
-import { createServerClient } from "@supabase/ssr";
-
 import { updateSession } from "@/lib/supabase/middleware";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-
 export default async function proxy(request: Parameters<typeof updateSession>[0]) {
-  const response = await updateSession(request);
-
-  const supabase = createServerClient(supabaseUrl!, supabaseKey!, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll();
-      },
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-        cookiesToSet.forEach(({ name, value, options }) =>
-          response.cookies.set(name, value, options),
-        );
-      },
-    },
-  });
-
-  const { data } = await supabase.auth.getUser();
-  const isLoggedIn = !!data.user;
+  const { response, user } = await updateSession(request);
+  const isLoggedIn = !!user;
 
   const pathname = request.nextUrl.pathname;
-  const isOnDashboard = pathname.startsWith("/dashboard");
-  const isAuthPage = pathname === "/login" || pathname === "/";
+  const isLoginPage = pathname === "/login";
+  const isPublicAsset =
+    pathname.startsWith("/_next/") ||
+    pathname === "/favicon.ico" ||
+    /\.[a-zA-Z0-9]+$/.test(pathname);
 
-  if (isOnDashboard && !isLoggedIn) {
+  // If user is not logged in, force them to login for any route.
+  if (!isLoggedIn && !isLoginPage && !isPublicAsset) {
     return Response.redirect(new URL("/login", request.nextUrl));
   }
 
-  if (isLoggedIn && isAuthPage) {
+  // If user is logged in, keep them out of the login page.
+  if (isLoggedIn && isLoginPage) {
     return Response.redirect(new URL("/dashboard", request.nextUrl));
   }
 
