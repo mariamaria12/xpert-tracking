@@ -3,9 +3,13 @@
 import { Pencil } from "lucide-react";
 import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 
-import type { TimesheetRow } from "./columns";
-import type { EmployeeOption, ProjectOption } from "./AddTimesheetDialog";
-import { updateTimesheet, type TimesheetFormState } from "./actions";
+import type {
+  EmployeeOption,
+  ProjectOption,
+  TimesheetFormState,
+  TimesheetRow,
+} from "@/lib/services/timesheet/timesheet.types";
+import { updateTimesheet } from "./actions";
 import SelectPicker from "./SelectPicker";
 
 const inputClassName =
@@ -33,6 +37,7 @@ export default function EditTimesheetDialog({
   projects: ProjectOption[];
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const initialValues = useMemo(
     () => ({
@@ -58,11 +63,13 @@ export default function EditTimesheetDialog({
     if (state?.success) {
       dialogRef.current?.close();
     }
-  }, [state?.success]);
+  }, [state]);
 
   function openDialog() {
     setProjectId(initialValues.projectId);
     setEmployeeId(initialValues.employeeId);
+    // Reset any previous field errors and restore default values.
+    formRef.current?.reset();
     dialogRef.current?.showModal();
   }
 
@@ -85,7 +92,7 @@ export default function EditTimesheetDialog({
         ref={dialogRef}
         className="w-full max-w-2xl rounded-2xl border border-white/10 bg-[#111827] p-0 text-white shadow-xl shadow-black/40 backdrop:bg-black/60 open:backdrop:bg-black/60"
       >
-        <form action={formAction} className="p-6">
+        <form ref={formRef} action={formAction} className="p-6">
           <input type="hidden" name="id" value={row.id} />
           <input type="hidden" name="projectId" value={projectId} />
           <input type="hidden" name="employeeId" value={employeeId} />

@@ -3,11 +3,13 @@
 import { Plus } from "lucide-react";
 import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 
-import { createTimesheet, type TimesheetFormState } from "./actions";
+import type {
+  EmployeeOption,
+  ProjectOption,
+  TimesheetFormState,
+} from "@/lib/services/timesheet/timesheet.types";
+import { createTimesheet } from "./actions";
 import SelectPicker from "./SelectPicker";
-
-export type EmployeeOption = { id: string; label: string };
-export type ProjectOption = { id: string; label: string; status: string | null };
 
 const inputClassName =
   "w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-400";

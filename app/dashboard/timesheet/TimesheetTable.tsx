@@ -4,8 +4,12 @@ import { Clock } from "lucide-react";
 
 import DataTable from "@/ui/table/DataTable";
 
-import { getTimesheetColumns, type TimesheetRow } from "./columns";
-import type { EmployeeOption, ProjectOption } from "./AddTimesheetDialog";
+import type {
+  EmployeeOption,
+  ProjectOption,
+  TimesheetRow,
+} from "@/lib/services/timesheet/timesheet.types";
+import { getTimesheetColumns } from "./columns";
 
 type TimesheetTableProps = {
   rows: TimesheetRow[];

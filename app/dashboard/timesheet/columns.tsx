@@ -5,24 +5,7 @@ import type { DataTableColumn } from "@/ui/table/DataTable";
 
 import type { TimesheetStatusDisplay } from "./timesheetStatus";
 import EditTimesheetDialog from "./EditTimesheetDialog";
-import type { EmployeeOption, ProjectOption } from "./AddTimesheetDialog";
-
-export type TimesheetRow = {
-  id: string;
-  employeeId: string;
-  projectId: string;
-  employeeName: string;
-  projectName: string;
-  dateLabel: string;
-  hoursLabel: string;
-  status: TimesheetStatusDisplay;
-  activity: string | null;
-  notes: string | null;
-  startedAtLabel: string;
-  endedAtLabel: string;
-  startedAtIso: string;
-  endedAtIso: string | null;
-};
+import type { EmployeeOption, ProjectOption, TimesheetRow } from "@/lib/services/timesheet/timesheet.types";
 
 function StatusBadge({ display }: { display: TimesheetStatusDisplay }) {
   const styles =
