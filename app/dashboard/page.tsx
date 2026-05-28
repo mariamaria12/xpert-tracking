@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Clock, FolderKanban, Users, Building2 } from "lucide-react";
 import StatCard from "@/ui/dashboard/StatCard";
 
@@ -38,10 +39,18 @@ export default async function DashboardHomePage() {
     <div>
       <h1 className="mb-8 text-2xl font-bold text-white">Home</h1>
       <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Active Projects" value={activeProjectsValue} icon={FolderKanban} />
-        <StatCard title="Team Members" value={teamMembersValue} icon={Users} />
-        <StatCard title="Hours Logged" value={hoursLoggedValue} icon={Clock} />
-        <StatCard title="Active Clients" value={activeClientsValue} icon={Building2} />
+        <Link href="/dashboard/projects" className="block">
+          <StatCard title="Active Projects" value={activeProjectsValue} icon={FolderKanban} />
+        </Link>
+        <Link href="/dashboard/people" className="block">
+          <StatCard title="Team Members" value={teamMembersValue} icon={Users} />
+        </Link>
+        <Link href="/dashboard/timesheet" className="block">
+          <StatCard title="Hours Logged" value={hoursLoggedValue} icon={Clock} />
+        </Link>
+        <Link href="/dashboard/clients" className="block">
+          <StatCard title="Active Clients" value={activeClientsValue} icon={Building2} />
+        </Link>
       </div>
       <div className="grid gap-6 lg:grid-cols-2">
         <ActiveProjectsPanel projects={activeProjects} />
