@@ -4,8 +4,9 @@ import { Plus } from "lucide-react";
 import { useActionState, useEffect, useRef, useState } from "react";
 
 import SelectPicker from "../timesheet/SelectPicker";
-import { createProject, type ProjectFormState } from "./actions";
-import { projectStatusOptions } from "./projectStatuses";
+import type { ProjectFormState } from "@/lib/services/projects/projects.types";
+import { createProject } from "./actions";
+import { projectStatusOptions } from "@/lib/services/projects/projectStatuses";
 
 export type ClientOption = { id: string; label: string };
 

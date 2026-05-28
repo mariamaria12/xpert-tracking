@@ -5,14 +5,14 @@ import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 
 import SelectPicker from "../timesheet/SelectPicker";
 import type { ClientOption } from "./AddProjectDialog";
-import type { ProjectRow } from "./columns";
-import { updateProject, type ProjectFormState } from "./actions";
+import type { ProjectRow, ProjectFormState } from "@/lib/services/projects/projects.types";
+import { updateProject } from "./actions";
 import {
   formatProjectStatusLabel,
   PROJECT_STATUSES,
   projectStatusOptions,
   type ProjectStatus,
-} from "./projectStatuses";
+} from "@/lib/services/projects/projectStatuses";
 
 const inputClassName =
   "w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-400";

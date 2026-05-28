@@ -48,3 +48,4 @@ export const projectStatusOptions = PROJECT_STATUSES.map((status) => ({
   id: status,
   label: formatProjectStatusLabel(status),
 }));
+

@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 
-import { isActiveHomeProject } from "./projects/projectStatuses";
+import { isActiveHomeProject } from "@/lib/services/projects/projectStatuses";
 
 export type ActiveProjectSummary = {
   id: string;

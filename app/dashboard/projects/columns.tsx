@@ -6,20 +6,7 @@ import type { DataTableColumn } from "@/ui/table/DataTable";
 import type { ClientOption } from "./AddProjectDialog";
 import EditProjectDialog from "./EditProjectDialog";
 import ProjectStatusBadge from "./ProjectStatusBadge";
-
-export type ProjectRow = {
-  id: string;
-  name: string;
-  clientId: string;
-  companyName: string;
-  estimatedHours: number | null;
-  actualHours: number;
-  workers: number;
-  status: string;
-  dueDate: Date | null;
-  dueDateIso: string | null;
-  description: string | null;
-};
+import type { ProjectRow } from "@/lib/services/projects/projects.types";
 
 function formatHours(value: number | null) {
   if (value === null) return "—";

@@ -4,7 +4,8 @@ import { FolderKanban } from "lucide-react";
 
 import DataTable from "@/ui/table/DataTable";
 
-import { getProjectColumns, type ProjectRow } from "./columns";
+import type { ProjectRow } from "@/lib/services/projects/projects.types";
+import { getProjectColumns } from "./columns";
 import type { ClientOption } from "./AddProjectDialog";
 
 type ProjectsTableProps = {

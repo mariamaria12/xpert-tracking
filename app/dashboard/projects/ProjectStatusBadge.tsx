@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-import { formatProjectStatusLabel } from "./projectStatuses";
+import { formatProjectStatusLabel } from "@/lib/services/projects/projectStatuses";
 
 export default function ProjectStatusBadge({
   status,
