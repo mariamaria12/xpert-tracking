@@ -95,6 +95,7 @@ export default function Sidebar({ expanded, onToggle }: SidebarProps) {
             <Link
               key={href}
               href={href}
+              prefetch={false}
               title={expanded ? undefined : label}
               aria-label={label}
               className={navLinkClass(active, expanded)}

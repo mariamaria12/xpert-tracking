@@ -79,6 +79,7 @@ export default function ActiveProjectsPanel({
         </div>
         <Link
           href="/dashboard/projects"
+          prefetch={false}
           className="text-sm text-cyan-400 transition hover:text-cyan-300"
         >
           View all projects →

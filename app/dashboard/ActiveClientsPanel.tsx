@@ -18,6 +18,7 @@ export default function ActiveClientsPanel({
         </div>
         <Link
           href="/dashboard/clients"
+          prefetch={false}
           className="text-sm text-cyan-400 transition hover:text-cyan-300"
         >
           View all clients →

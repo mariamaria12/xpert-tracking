@@ -39,16 +39,16 @@ export default async function DashboardHomePage() {
     <div>
       <h1 className="mb-8 text-2xl font-bold text-white">Home</h1>
       <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <Link href="/dashboard/projects" className="block">
+        <Link href="/dashboard/projects" prefetch={false} className="block">
           <StatCard title="Active Projects" value={activeProjectsValue} icon={FolderKanban} />
         </Link>
-        <Link href="/dashboard/people" className="block">
+        <Link href="/dashboard/people" prefetch={false} className="block">
           <StatCard title="Team Members" value={teamMembersValue} icon={Users} />
         </Link>
-        <Link href="/dashboard/timesheet" className="block">
+        <Link href="/dashboard/timesheet" prefetch={false} className="block">
           <StatCard title="Hours Logged" value={hoursLoggedValue} icon={Clock} />
         </Link>
-        <Link href="/dashboard/clients" className="block">
+        <Link href="/dashboard/clients" prefetch={false} className="block">
           <StatCard title="Active Clients" value={activeClientsValue} icon={Building2} />
         </Link>
       </div>
