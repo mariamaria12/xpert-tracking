@@ -1,6 +1,6 @@
 "use client";
 
-import { authenticate } from "@/lib/actions";
+import { authenticate } from "@/lib/auth/actions";
 import { useActionState } from "react";
 
 const inputClassName =
