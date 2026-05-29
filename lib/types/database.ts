@@ -332,6 +332,14 @@ export type Database = {
           started_at: string
         }[]
       }
+      get_project_time_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          project_id: string
+          total_minutes: number
+          worker_count: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

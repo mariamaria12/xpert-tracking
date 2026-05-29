@@ -24,10 +24,11 @@ type ProjectDbRow = Pick<
   clients?: { company_name: string | null } | { company_name: string | null }[] | null;
 };
 
-type TimeLogDbRow = Pick<
-  Database["public"]["Tables"]["time_logs"]["Row"],
-  "project_id" | "employee_id" | "duration_minutes" | "started_at" | "ended_at"
->;
+type ProjectTimeStatsRow = {
+  project_id: string;
+  total_minutes: number;
+  worker_count: number;
+};
 
 function pickCompanyName(value: ProjectDbRow["clients"]) {
   if (!value) return "—";
@@ -44,41 +45,32 @@ export async function getProjectRows(): Promise<ProjectRowsResult> {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
-  const [{ data: projects, error: projectsError }, { data: timeLogs, error: timeLogsError }] =
-    await Promise.all([
-      supabase
-        .from("projects")
-        .select("id, name, client_id, status, estimated_hours, due_date, description, clients(company_name)")
-        .order("name", { ascending: true }),
-      supabase.from("time_logs").select("project_id, employee_id, duration_minutes, started_at, ended_at"),
-    ]);
+  const [
+    { data: projects, error: projectsError },
+    { data: timeStats, error: timeStatsError },
+  ] = await Promise.all([
+    supabase
+      .from("projects")
+      .select("id, name, client_id, status, estimated_hours, due_date, description, clients(company_name)")
+      .order("name", { ascending: true }),
+    supabase.rpc("get_project_time_stats"),
+  ]);
 
   if (projectsError) {
     console.error("Failed to load projects:", projectsError);
     return { rows: [], error: projectsError.message };
   }
 
-  if (timeLogsError) {
-    console.error("Failed to load time logs:", timeLogsError);
-    // still render projects even if actual hours fail
+  if (timeStatsError) {
+    console.error("Failed to load project time stats:", timeStatsError);
   }
 
   const actualMinutesByProjectId = new Map<string, number>();
-  const workersByProjectId = new Map<string, Set<string>>();
+  const workersByProjectId = new Map<string, number>();
 
-  for (const log of (timeLogs ?? []) as TimeLogDbRow[]) {
-    const minutes = Number(log.duration_minutes ?? 0);
-    actualMinutesByProjectId.set(
-      log.project_id,
-      (actualMinutesByProjectId.get(log.project_id) ?? 0) + minutes,
-    );
-
-    let workers = workersByProjectId.get(log.project_id);
-    if (!workers) {
-      workers = new Set<string>();
-      workersByProjectId.set(log.project_id, workers);
-    }
-    workers.add(log.employee_id);
+  for (const stat of (timeStats ?? []) as ProjectTimeStatsRow[]) {
+    actualMinutesByProjectId.set(stat.project_id, Number(stat.total_minutes ?? 0));
+    workersByProjectId.set(stat.project_id, Number(stat.worker_count ?? 0));
   }
 
   const rows: ProjectRow[] = ((projects ?? []) as ProjectDbRow[]).map((p) => ({
@@ -88,7 +80,7 @@ export async function getProjectRows(): Promise<ProjectRowsResult> {
     companyName: pickCompanyName(p.clients),
     estimatedHours: p.estimated_hours === null ? null : Number(p.estimated_hours),
     actualHours: (actualMinutesByProjectId.get(p.id) ?? 0) / 60,
-    workers: workersByProjectId.get(p.id)?.size ?? 0,
+    workers: workersByProjectId.get(p.id) ?? 0,
     status: p.status,
     dueDate: p.due_date ? new Date(p.due_date) : null,
     dueDateIso: p.due_date,
