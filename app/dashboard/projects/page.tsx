@@ -9,15 +9,13 @@ import { getProjectRows } from "./getProjectRows";
 type ClientDbRow = { id: string; company_name: string };
 
 export default async function ProjectsPage() {
-  const { rows, error } = await getProjectRows();
-
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
-  const { data: clients } = await supabase
-    .from("clients")
-    .select("id, company_name")
-    .order("company_name", { ascending: true });
+  const [{ rows, error }, { data: clients }] = await Promise.all([
+    getProjectRows(),
+    supabase.from("clients").select("id, company_name").order("company_name", { ascending: true }),
+  ]);
 
   const clientOptions =
     ((clients ?? []) as ClientDbRow[]).map((c) => ({

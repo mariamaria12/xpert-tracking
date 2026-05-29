@@ -1,6 +1,12 @@
 import { getProjectsAnalyticsData } from "@/lib/services/home/projectsAnalytics.service";
 
-import ProjectsAnalyticsCharts from "./projects-analytics/ProjectsAnalyticsCharts";
+import dynamic from "next/dynamic";
+
+import { ProjectsAnalyticsSkeleton } from "./skeletons";
+
+const ProjectsAnalyticsCharts = dynamic(() => import("./projects-analytics/ProjectsAnalyticsCharts"), {
+  loading: () => <ProjectsAnalyticsSkeleton />,
+});
 
 export default async function ProjectsAnalyticsSection() {
   const data = await getProjectsAnalyticsData();
