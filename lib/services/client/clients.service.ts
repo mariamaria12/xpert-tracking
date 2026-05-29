@@ -5,11 +5,20 @@ import type { Database } from "@/lib/types/database";
 
 import type { ClientCreateInput, ClientRow, ClientRowsResult, ClientUpdateInput } from "./clients.types";
 
-type ClientDbRow = Database["public"]["Tables"]["clients"]["Row"];
-
-type ClientProjectCountRow = {
-  client_id: string;
-  project_count: number;
+type ClientDbRow = Pick<
+  Database["public"]["Tables"]["clients"]["Row"],
+  | "id"
+  | "company_name"
+  | "industry"
+  | "contact_person"
+  | "email"
+  | "phone"
+  | "delivery_address"
+  | "billing_address"
+  | "status"
+  | "notes"
+> & {
+  projects?: Pick<Database["public"]["Tables"]["projects"]["Row"], "id">[] | null;
 };
 
 function toNullIfEmpty(value: string | undefined) {
@@ -26,31 +35,28 @@ export async function getClientRows(): Promise<ClientRowsResult> {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
-  const [
-    { data: clients, error: clientsError },
-    { data: projectCounts, error: projectCountsError },
-  ] = await Promise.all([
-    supabase
-      .from("clients")
-      .select(
-        "id, company_name, industry, contact_person, email, phone, delivery_address, billing_address, status, notes",
-      )
-      .order("company_name", { ascending: true }),
-    supabase.rpc("get_client_project_counts"),
-  ]);
+  const { data: clients, error } = await supabase
+    .from("clients")
+    .select(
+      `
+      id,
+      company_name,
+      industry,
+      contact_person,
+      email,
+      phone,
+      delivery_address,
+      billing_address,
+      status,
+      notes,
+      projects(id)
+    `,
+    )
+    .order("company_name", { ascending: true });
 
-  if (clientsError) {
-    console.error("Failed to load clients:", clientsError);
-    return { rows: [], error: clientsError.message };
-  }
-
-  if (projectCountsError) {
-    console.error("Failed to load client project counts:", projectCountsError);
-  }
-
-  const projectCountByClientId = new Map<string, number>();
-  for (const row of (projectCounts ?? []) as ClientProjectCountRow[]) {
-    projectCountByClientId.set(row.client_id, Number(row.project_count ?? 0));
+  if (error) {
+    console.error("Failed to load clients:", error);
+    return { rows: [], error: error.message };
   }
 
   const rows: ClientRow[] = ((clients ?? []) as ClientDbRow[]).map((c) => ({
@@ -64,7 +70,7 @@ export async function getClientRows(): Promise<ClientRowsResult> {
     billingAddress: c.billing_address,
     status: c.status,
     notes: c.notes,
-    projectCount: projectCountByClientId.get(c.id) ?? 0,
+    projectCount: c.projects?.length ?? 0,
   }));
 
   return { rows };

@@ -17,18 +17,24 @@ import type {
   TimesheetUpdateInput,
 } from "./timesheet.types";
 
-type TimesheetListRow = {
-  id: string;
-  employee_id: string;
-  project_id: string;
-  started_at: string;
-  ended_at: string | null;
-  duration_minutes: number | null;
-  activity: string | null;
-  notes: string | null;
-  employee_first_name: string | null;
-  employee_last_name: string | null;
-  project_name: string | null;
+type NestedName =
+  | { first_name?: string | null; last_name?: string | null; name?: string | null }
+  | { first_name?: string | null; last_name?: string | null; name?: string | null }[]
+  | null;
+
+type TimeLogJoinedRow = Pick<
+  Database["public"]["Tables"]["time_logs"]["Row"],
+  | "id"
+  | "employee_id"
+  | "project_id"
+  | "started_at"
+  | "ended_at"
+  | "duration_minutes"
+  | "activity"
+  | "notes"
+> & {
+  employee?: NestedName;
+  project?: NestedName;
 };
 
 function toNullIfEmpty(value: string | undefined) {
@@ -36,12 +42,25 @@ function toNullIfEmpty(value: string | undefined) {
   return trimmed.length ? trimmed : null;
 }
 
-function formatEmployeeNameFromParts(
-  firstName: string | null | undefined,
-  lastName: string | null | undefined,
-) {
-  const full = `${firstName?.trim() ?? ""} ${lastName?.trim() ?? ""}`.trim();
-  return full || "—";
+function pickNested<T extends Record<string, unknown>>(
+  value: NestedName,
+  format: (item: T) => string,
+): string {
+  if (!value) return "—";
+  const item = (Array.isArray(value) ? value[0] : value) as T | undefined;
+  if (!item) return "—";
+  return format(item);
+}
+
+function formatEmployeeName(value: NestedName) {
+  return pickNested<{ first_name?: string | null; last_name?: string | null }>(value, (emp) => {
+    const full = `${emp.first_name?.trim() ?? ""} ${emp.last_name?.trim() ?? ""}`.trim();
+    return full || "—";
+  });
+}
+
+function formatProjectName(value: NestedName) {
+  return pickNested<{ name?: string | null }>(value, (project) => project.name?.trim() || "—");
 }
 
 export async function getTimesheetRows(): Promise<TimesheetRowsResult> {
@@ -49,14 +68,30 @@ export async function getTimesheetRows(): Promise<TimesheetRowsResult> {
   const supabase = createClient(cookieStore);
   const referenceDate = new Date();
 
-  const { data: timeLogs, error } = await supabase.rpc("get_timesheet_list");
+  const { data: timeLogs, error } = await supabase
+    .from("time_logs")
+    .select(
+      `
+      id,
+      employee_id,
+      project_id,
+      started_at,
+      ended_at,
+      duration_minutes,
+      activity,
+      notes,
+      employee:employees(first_name, last_name),
+      project:projects(name)
+    `,
+    )
+    .order("started_at", { ascending: false });
 
   if (error) {
     console.error("Failed to load time logs:", error);
     return { rows: [], error: error.message };
   }
 
-  const rows: TimesheetRow[] = ((timeLogs ?? []) as TimesheetListRow[]).map((log) => {
+  const rows: TimesheetRow[] = ((timeLogs ?? []) as TimeLogJoinedRow[]).map((log) => {
     const startedAt = new Date(log.started_at);
     const endedAt = log.ended_at ? new Date(log.ended_at) : null;
 
@@ -92,8 +127,8 @@ export async function getTimesheetRows(): Promise<TimesheetRowsResult> {
       id: log.id,
       employeeId: log.employee_id,
       projectId: log.project_id,
-      employeeName: formatEmployeeNameFromParts(log.employee_first_name, log.employee_last_name),
-      projectName: log.project_name?.trim() || "—",
+      employeeName: formatEmployeeName(log.employee ?? null),
+      projectName: formatProjectName(log.project ?? null),
       dateLabel: Number.isNaN(startedAt.getTime()) ? "—" : formatDate(startedAt),
       hoursLabel: hours === null ? "—" : formatHoursMinutes(hours),
       status: statusDisplay,

@@ -11,6 +11,11 @@ import type {
   ProjectUpdateInput,
 } from "./projects.types";
 
+type ProjectTimeLogEmbed = Pick<
+  Database["public"]["Tables"]["time_logs"]["Row"],
+  "employee_id" | "duration_minutes"
+>;
+
 type ProjectDbRow = Pick<
   Database["public"]["Tables"]["projects"]["Row"],
   | "id"
@@ -21,19 +26,28 @@ type ProjectDbRow = Pick<
   | "due_date"
   | "description"
 > & {
-  clients?: { company_name: string | null } | { company_name: string | null }[] | null;
+  client?: { company_name: string | null } | { company_name: string | null }[] | null;
+  time_logs?: ProjectTimeLogEmbed[] | null;
 };
 
-type ProjectTimeStatsRow = {
-  project_id: string;
-  total_minutes: number;
-  worker_count: number;
-};
-
-function pickCompanyName(value: ProjectDbRow["clients"]) {
+function pickCompanyName(value: ProjectDbRow["client"]) {
   if (!value) return "—";
   const item = Array.isArray(value) ? value[0] : value;
   return item?.company_name?.trim() || "—";
+}
+
+function aggregateTimeLogs(logs: ProjectTimeLogEmbed[] | null | undefined) {
+  let totalMinutes = 0;
+  const workers = new Set<string>();
+
+  for (const log of logs ?? []) {
+    totalMinutes += Number(log.duration_minutes ?? 0);
+    if (log.employee_id) {
+      workers.add(log.employee_id);
+    }
+  }
+
+  return { totalMinutes, workerCount: workers.size };
 }
 
 function toNullIfEmpty(value: string | undefined) {
@@ -45,47 +59,45 @@ export async function getProjectRows(): Promise<ProjectRowsResult> {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
-  const [
-    { data: projects, error: projectsError },
-    { data: timeStats, error: timeStatsError },
-  ] = await Promise.all([
-    supabase
-      .from("projects")
-      .select("id, name, client_id, status, estimated_hours, due_date, description, clients(company_name)")
-      .order("name", { ascending: true }),
-    supabase.rpc("get_project_time_stats"),
-  ]);
+  const { data: projects, error } = await supabase
+    .from("projects")
+    .select(
+      `
+      id,
+      name,
+      client_id,
+      status,
+      estimated_hours,
+      due_date,
+      description,
+      client:clients(company_name),
+      time_logs(duration_minutes, employee_id)
+    `,
+    )
+    .order("name", { ascending: true });
 
-  if (projectsError) {
-    console.error("Failed to load projects:", projectsError);
-    return { rows: [], error: projectsError.message };
+  if (error) {
+    console.error("Failed to load projects:", error);
+    return { rows: [], error: error.message };
   }
 
-  if (timeStatsError) {
-    console.error("Failed to load project time stats:", timeStatsError);
-  }
+  const rows: ProjectRow[] = ((projects ?? []) as ProjectDbRow[]).map((p) => {
+    const { totalMinutes, workerCount } = aggregateTimeLogs(p.time_logs);
 
-  const actualMinutesByProjectId = new Map<string, number>();
-  const workersByProjectId = new Map<string, number>();
-
-  for (const stat of (timeStats ?? []) as ProjectTimeStatsRow[]) {
-    actualMinutesByProjectId.set(stat.project_id, Number(stat.total_minutes ?? 0));
-    workersByProjectId.set(stat.project_id, Number(stat.worker_count ?? 0));
-  }
-
-  const rows: ProjectRow[] = ((projects ?? []) as ProjectDbRow[]).map((p) => ({
-    id: p.id,
-    name: p.name,
-    clientId: p.client_id,
-    companyName: pickCompanyName(p.clients),
-    estimatedHours: p.estimated_hours === null ? null : Number(p.estimated_hours),
-    actualHours: (actualMinutesByProjectId.get(p.id) ?? 0) / 60,
-    workers: workersByProjectId.get(p.id) ?? 0,
-    status: p.status,
-    dueDate: p.due_date ? new Date(p.due_date) : null,
-    dueDateIso: p.due_date,
-    description: p.description,
-  }));
+    return {
+      id: p.id,
+      name: p.name,
+      clientId: p.client_id,
+      companyName: pickCompanyName(p.client),
+      estimatedHours: p.estimated_hours === null ? null : Number(p.estimated_hours),
+      actualHours: totalMinutes / 60,
+      workers: workerCount,
+      status: p.status,
+      dueDate: p.due_date ? new Date(p.due_date) : null,
+      dueDateIso: p.due_date,
+      description: p.description,
+    };
+  });
 
   return { rows };
 }

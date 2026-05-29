@@ -13,18 +13,19 @@ import type {
   PeopleRowsResult,
 } from "./people.types";
 
-type TimeLogRow = {
-  employee_id: Database["public"]["Tables"]["time_logs"]["Row"]["employee_id"];
-  duration_minutes: Database["public"]["Tables"]["time_logs"]["Row"]["duration_minutes"];
-  project_id: Database["public"]["Tables"]["time_logs"]["Row"]["project_id"];
-  projects?: { name: string | null } | { name: string | null }[] | null;
-  started_at?: string | null;
+type EmployeeTimeLogEmbed = Pick<
+  Database["public"]["Tables"]["time_logs"]["Row"],
+  "duration_minutes" | "started_at"
+> & {
+  project?: { name: string | null } | { name: string | null }[] | null;
 };
 
 type EmployeeDbRow = Pick<
   Database["public"]["Tables"]["employees"]["Row"],
   "id" | "first_name" | "last_name" | "email" | "phone" | "role"
->;
+> & {
+  time_logs?: EmployeeTimeLogEmbed[] | null;
+};
 
 function toNullIfEmpty(value: string | undefined) {
   const trimmed = value?.trim() ?? "";
@@ -46,113 +47,95 @@ function getCurrentWeekRange() {
   return { weekStart, weekEnd };
 }
 
-type EmployeeLastLogRow = {
-  employee_id: string;
-  started_at: string;
-};
+function pickProjectName(value: EmployeeTimeLogEmbed["project"]) {
+  if (!value) return null;
+  const item = Array.isArray(value) ? value[0] : value;
+  return item?.name?.trim() || null;
+}
+
+function aggregateEmployeeTimeLogs(
+  logs: EmployeeTimeLogEmbed[] | null | undefined,
+  weekStart: Date,
+  weekEnd: Date,
+) {
+  let totalMinutes = 0;
+  const projectMinutes = new Map<string, number>();
+  let lastLogAt: string | null = null;
+
+  for (const log of logs ?? []) {
+    if (log.started_at && (!lastLogAt || log.started_at > lastLogAt)) {
+      lastLogAt = log.started_at;
+    }
+
+    const started = new Date(log.started_at);
+    if (Number.isNaN(started.getTime()) || started < weekStart || started >= weekEnd) {
+      continue;
+    }
+
+    const minutes = Number(log.duration_minutes ?? 0);
+    totalMinutes += minutes;
+
+    const projectName = pickProjectName(log.project);
+    if (!projectName) continue;
+
+    projectMinutes.set(projectName, (projectMinutes.get(projectName) ?? 0) + minutes);
+  }
+
+  let assignedProject: string | null = null;
+  let bestMinutes = -1;
+  for (const [name, mins] of projectMinutes.entries()) {
+    if (mins > bestMinutes) {
+      bestMinutes = mins;
+      assignedProject = name;
+    }
+  }
+
+  return { totalMinutes, assignedProject, lastLogAt };
+}
 
 export async function getPeopleRows(): Promise<PeopleRowsResult> {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
   const { weekStart, weekEnd } = getCurrentWeekRange();
-
-  const [
-    { data: employees, error: employeesError },
-    { data: timeLogs, error: timeLogsError },
-    { data: lastLogs, error: lastLogsError },
-  ] = await Promise.all([
-    supabase
-      .from("employees")
-      .select("id, first_name, last_name, email, phone, role")
-      .order("last_name", { ascending: true })
-      .order("first_name", { ascending: true }),
-    supabase
-      .from("time_logs")
-      .select("employee_id, duration_minutes, project_id, projects(name)")
-      .gte("started_at", weekStart.toISOString())
-      .lt("started_at", weekEnd.toISOString()),
-    supabase.rpc("get_employee_last_logs"),
-  ]);
-
-  if (employeesError) {
-    console.error("Failed to load employees:", employeesError);
-    return { rows: [], error: employeesError.message };
-  }
-
-  if (timeLogsError) {
-    console.error("Failed to load time logs:", timeLogsError);
-  }
-
-  if (lastLogsError) {
-    console.error("Failed to load last logs:", lastLogsError);
-  }
-
-  const logs = (timeLogs ?? []) as TimeLogRow[];
-
-  const totalMinutesByEmployee = new Map<string, number>();
-  const projectMinutesByEmployee = new Map<string, Map<string, number>>();
-
-  for (const log of logs) {
-    const employeeId = log.employee_id;
-    const minutes = Number(log.duration_minutes ?? 0);
-
-    totalMinutesByEmployee.set(
-      employeeId,
-      (totalMinutesByEmployee.get(employeeId) ?? 0) + minutes,
-    );
-
-    const projects = log.projects ?? null;
-    const projectName = Array.isArray(projects)
-      ? (projects[0]?.name ?? null)
-      : (projects?.name ?? null);
-
-    if (!projectName) continue;
-
-    let perProject = projectMinutesByEmployee.get(employeeId);
-    if (!perProject) {
-      perProject = new Map<string, number>();
-      projectMinutesByEmployee.set(employeeId, perProject);
-    }
-
-    perProject.set(projectName, (perProject.get(projectName) ?? 0) + minutes);
-  }
-
-  const lastLogAtByEmployee = new Map<string, string>();
-  for (const row of (lastLogs ?? []) as EmployeeLastLogRow[]) {
-    if (!row.employee_id || !row.started_at) continue;
-    lastLogAtByEmployee.set(row.employee_id, row.started_at);
-  }
-
   const now = new Date();
 
+  const { data: employees, error } = await supabase
+    .from("employees")
+    .select(
+      `
+      id,
+      first_name,
+      last_name,
+      email,
+      phone,
+      role,
+      time_logs(duration_minutes, started_at, project:projects(name))
+    `,
+    )
+    .order("last_name", { ascending: true })
+    .order("first_name", { ascending: true });
+
+  if (error) {
+    console.error("Failed to load employees:", error);
+    return { rows: [], error: error.message };
+  }
+
   const rows: PeopleRow[] = ((employees ?? []) as EmployeeDbRow[]).map((emp) => {
-    const employeeId = String(emp.id);
-    const totalMinutes = totalMinutesByEmployee.get(employeeId) ?? 0;
-
-    const perProject = projectMinutesByEmployee.get(employeeId);
-    let assignedProject: string | null = null;
-
-    if (perProject && perProject.size > 0) {
-      let bestName: string | null = null;
-      let bestMinutes = -1;
-      for (const [name, mins] of perProject.entries()) {
-        if (mins > bestMinutes) {
-          bestMinutes = mins;
-          bestName = name;
-        }
-      }
-      assignedProject = bestName;
-    }
+    const { totalMinutes, assignedProject, lastLogAt } = aggregateEmployeeTimeLogs(
+      emp.time_logs,
+      weekStart,
+      weekEnd,
+    );
 
     return {
-      id: employeeId,
+      id: String(emp.id),
       firstName: String(emp.first_name ?? ""),
       lastName: String(emp.last_name ?? ""),
       email: emp.email ? String(emp.email) : null,
       phone: emp.phone ? String(emp.phone) : null,
       role: emp.role ? String(emp.role) : null,
       assignedProject,
-      lastLog: getLastLogDisplay(lastLogAtByEmployee.get(employeeId) ?? null, now),
+      lastLog: getLastLogDisplay(lastLogAt, now),
       hoursWeek: getHoursWeekDisplay(totalMinutes > 0 ? totalMinutes / 60 : 0, now),
     };
   });
