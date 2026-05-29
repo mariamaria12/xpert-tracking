@@ -340,6 +340,13 @@ export type Database = {
           worker_count: number
         }[]
       }
+      get_client_project_counts: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          client_id: string
+          project_count: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
