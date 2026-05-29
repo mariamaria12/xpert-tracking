@@ -1,12 +1,15 @@
-import TimesheetTable from "./TimesheetTable";
-import { getTimesheetRows } from "./getTimesheetRows";
+import { getTimesheetPageData } from "@/lib/services/timesheet/timesheet.service";
+
 import AddTimesheetDialog from "./AddTimesheetDialog";
-import { getTimesheetPickerOptions } from "@/lib/services/timesheet/timesheet.service";
+import TimesheetTable from "./TimesheetTable";
 
 export default async function TimesheetPage() {
-  const { rows, error } = await getTimesheetRows();
-  const { employees: employeeOptions, projects: projectOptions } =
-    await getTimesheetPickerOptions();
+  const {
+    rows,
+    error,
+    employees: employeeOptions,
+    projects: projectOptions,
+  } = await getTimesheetPageData();
 
   return (
     <div>

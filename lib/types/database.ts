@@ -347,6 +347,22 @@ export type Database = {
           project_count: number
         }[]
       }
+      get_timesheet_list: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          employee_id: string
+          project_id: string
+          started_at: string
+          ended_at: string | null
+          duration_minutes: number | null
+          activity: string | null
+          notes: string | null
+          employee_first_name: string | null
+          employee_last_name: string | null
+          project_name: string | null
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
