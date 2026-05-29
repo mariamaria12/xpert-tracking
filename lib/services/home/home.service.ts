@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { cookies } from "next/headers";
 
 import { createClient } from "@/lib/supabase/server";
@@ -29,25 +30,20 @@ function pickCompanyName(value: ActiveProjectDbRow["clients"]) {
   return item?.company_name?.trim() || "—";
 }
 
-export async function getHomeDashboardData(): Promise<HomeDashboardData> {
+type ActiveHomePanelsData = Pick<HomeDashboardData, "activeProjects" | "activeClients">;
+
+async function fetchActiveHomePanelsData(): Promise<ActiveHomePanelsData> {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
-  const [
-    { count: teamMembersCount, error: teamMembersError },
-    { data: timeLogs, error: timeLogsError },
-    { data: activeProjects, error: activeProjectsError },
-  ] = await Promise.all([
-    supabase
-      .from("employees")
-      .select("id", { count: "exact", head: true })
-      .eq("is_active", true),
-    supabase.from("time_logs").select("project_id, duration_minutes"),
-    supabase
-      .from("projects")
-      .select("id, name, status, estimated_hours, due_date, client_id, clients(company_name)")
-      .order("due_date", { ascending: true }),
-  ]);
+  const [{ data: timeLogs, error: timeLogsError }, { data: activeProjects, error: activeProjectsError }] =
+    await Promise.all([
+      supabase.from("time_logs").select("project_id, duration_minutes"),
+      supabase
+        .from("projects")
+        .select("id, name, status, estimated_hours, due_date, client_id, clients(company_name)")
+        .order("due_date", { ascending: true }),
+    ]);
 
   const actualMinutesByProjectId = new Map<string, number>();
   for (const log of (timeLogs ?? []) as TimeLogDbRow[]) {
@@ -57,12 +53,7 @@ export async function getHomeDashboardData(): Promise<HomeDashboardData> {
     );
   }
 
-  const totalMinutes =
-    timeLogsError || !timeLogs
-      ? null
-      : timeLogs.reduce((sum, row) => sum + Number(row.duration_minutes ?? 0), 0);
-
-  const projects: ActiveProjectSummary[] = activeProjectsError
+  const activeProjectsList: ActiveProjectSummary[] = activeProjectsError
     ? []
     : ((activeProjects ?? []) as ActiveProjectDbRow[])
         .filter((p) => isActiveHomeProject(p.status))
@@ -97,14 +88,77 @@ export async function getHomeDashboardData(): Promise<HomeDashboardData> {
         );
       })();
 
+  void timeLogsError;
+
+  return {
+    activeProjects: activeProjectsList,
+    activeClients,
+  };
+}
+
+export const getActiveHomePanelsData = cache(fetchActiveHomePanelsData);
+
+export async function getHomeStatCardsData(): Promise<
+  Pick<
+    HomeDashboardData,
+    "teamMembersCount" | "hoursLogged" | "activeProjectsCount" | "activeClientsCount"
+  >
+> {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  const [
+    { count: teamMembersCount, error: teamMembersError },
+    { data: timeLogs, error: timeLogsError },
+    { data: projects, error: projectsError },
+  ] = await Promise.all([
+    supabase
+      .from("employees")
+      .select("id", { count: "exact", head: true })
+      .eq("is_active", true),
+    supabase.from("time_logs").select("project_id, duration_minutes"),
+    supabase.from("projects").select("id, status, client_id"),
+  ]);
+
+  const totalMinutes =
+    timeLogsError || !timeLogs
+      ? null
+      : timeLogs.reduce((sum, row) => sum + Number(row.duration_minutes ?? 0), 0);
+
+  let activeProjectsCount: number | null = null;
+  let activeClientsCount: number | null = null;
+
+  if (!projectsError && projects) {
+    const activeClientIds = new Set<string>();
+    let activeCount = 0;
+
+    for (const project of projects) {
+      if (!isActiveHomeProject(project.status)) continue;
+      activeCount += 1;
+      if (project.client_id) {
+        activeClientIds.add(project.client_id);
+      }
+    }
+
+    activeProjectsCount = activeCount;
+    activeClientsCount = activeClientIds.size;
+  }
+
   return {
     teamMembersCount: teamMembersError || teamMembersCount === null ? null : teamMembersCount,
     hoursLogged: totalMinutes === null ? null : totalMinutes / 60,
-    // Keep count in sync with the list below (same filter).
-    activeProjectsCount: activeProjectsError ? null : projects.length,
-    activeClientsCount: activeProjectsError ? null : activeClients.length,
-    activeClients,
-    activeProjects: projects,
+    activeProjectsCount,
+    activeClientsCount,
+  };
+}
+
+/** @deprecated Use getHomeStatCardsData + getActiveHomePanelsData */
+export async function getHomeDashboardData(): Promise<HomeDashboardData> {
+  const [stats, panels] = await Promise.all([getHomeStatCardsData(), getActiveHomePanelsData()]);
+
+  return {
+    ...stats,
+    ...panels,
   };
 }
 

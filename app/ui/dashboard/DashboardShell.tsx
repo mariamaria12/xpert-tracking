@@ -12,15 +12,14 @@ export default function DashboardShell({
 }: {
   children: React.ReactNode;
 }) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
 
   useEffect(() => {
     const media = window.matchMedia(MD_MEDIA_QUERY);
-    const syncWithViewport = () => setExpanded(media.matches);
+    const onViewportChange = () => setExpanded(media.matches);
 
-    syncWithViewport();
-    media.addEventListener("change", syncWithViewport);
-    return () => media.removeEventListener("change", syncWithViewport);
+    media.addEventListener("change", onViewportChange);
+    return () => media.removeEventListener("change", onViewportChange);
   }, []);
 
   function toggleSidebar() {

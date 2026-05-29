@@ -1,10 +1,17 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { Clock, FolderKanban, Users, Building2 } from "lucide-react";
 import StatCard from "@/ui/dashboard/StatCard";
 
-import ActiveClientsPanel from "./ActiveClientsPanel";
-import ActiveProjectsPanel from "./ActiveProjectsPanel";
-import { getHomeDashboardData } from "./getHomeData";
+import ActiveClientsSection from "./ActiveClientsSection";
+import ActiveProjectsSection from "./ActiveProjectsSection";
+import ProjectsAnalyticsSection from "./ProjectsAnalyticsSection";
+import {
+  ActiveClientsPanelSkeleton,
+  ActiveProjectsPanelSkeleton,
+  ProjectsAnalyticsSkeleton,
+} from "./skeletons";
+import { getHomeStatCardsData } from "@/lib/services/home/home.service";
 
 function formatHours(hours: number) {
   return new Intl.NumberFormat("en-US", {
@@ -14,14 +21,8 @@ function formatHours(hours: number) {
 }
 
 export default async function DashboardHomePage() {
-  const {
-    teamMembersCount,
-    hoursLogged,
-    activeProjectsCount,
-    activeClientsCount,
-    activeClients,
-    activeProjects,
-  } = await getHomeDashboardData();
+  const { teamMembersCount, hoursLogged, activeProjectsCount, activeClientsCount } =
+    await getHomeStatCardsData();
 
   const activeProjectsValue =
     activeProjectsCount === null ? "—" : activeProjectsCount;
@@ -53,9 +54,17 @@ export default async function DashboardHomePage() {
         </Link>
       </div>
       <div className="grid gap-6 lg:grid-cols-2">
-        <ActiveProjectsPanel projects={activeProjects} />
-        <ActiveClientsPanel clients={activeClients} />
+        <Suspense fallback={<ActiveProjectsPanelSkeleton />}>
+          <ActiveProjectsSection />
+        </Suspense>
+        <Suspense fallback={<ActiveClientsPanelSkeleton />}>
+          <ActiveClientsSection />
+        </Suspense>
       </div>
+
+      <Suspense fallback={<ProjectsAnalyticsSkeleton />}>
+        <ProjectsAnalyticsSection />
+      </Suspense>
     </div>
   );
 }
