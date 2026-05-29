@@ -325,7 +325,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_employee_last_logs: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          employee_id: string
+          started_at: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

@@ -46,29 +46,45 @@ function getCurrentWeekRange() {
   return { weekStart, weekEnd };
 }
 
+type EmployeeLastLogRow = {
+  employee_id: string;
+  started_at: string;
+};
+
 export async function getPeopleRows(): Promise<PeopleRowsResult> {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
+  const { weekStart, weekEnd } = getCurrentWeekRange();
 
-  const { data: employees, error: employeesError } = await supabase
-    .from("employees")
-    .select("id, first_name, last_name, email, phone, role");
+  const [
+    { data: employees, error: employeesError },
+    { data: timeLogs, error: timeLogsError },
+    { data: lastLogs, error: lastLogsError },
+  ] = await Promise.all([
+    supabase
+      .from("employees")
+      .select("id, first_name, last_name, email, phone, role")
+      .order("last_name", { ascending: true })
+      .order("first_name", { ascending: true }),
+    supabase
+      .from("time_logs")
+      .select("employee_id, duration_minutes, project_id, projects(name)")
+      .gte("started_at", weekStart.toISOString())
+      .lt("started_at", weekEnd.toISOString()),
+    supabase.rpc("get_employee_last_logs"),
+  ]);
 
   if (employeesError) {
     console.error("Failed to load employees:", employeesError);
     return { rows: [], error: employeesError.message };
   }
 
-  const { weekStart, weekEnd } = getCurrentWeekRange();
-
-  const { data: timeLogs, error: timeLogsError } = await supabase
-    .from("time_logs")
-    .select("employee_id, duration_minutes, project_id, projects(name)")
-    .gte("started_at", weekStart.toISOString())
-    .lt("started_at", weekEnd.toISOString());
-
   if (timeLogsError) {
     console.error("Failed to load time logs:", timeLogsError);
+  }
+
+  if (lastLogsError) {
+    console.error("Failed to load last logs:", lastLogsError);
   }
 
   const logs = (timeLogs ?? []) as TimeLogRow[];
@@ -101,27 +117,10 @@ export async function getPeopleRows(): Promise<PeopleRowsResult> {
     perProject.set(projectName, (perProject.get(projectName) ?? 0) + minutes);
   }
 
-  const employeeIds = ((employees ?? []) as EmployeeDbRow[]).map((e) => String(e.id));
   const lastLogAtByEmployee = new Map<string, string>();
-
-  if (employeeIds.length > 0) {
-    const { data: lastLogs, error: lastLogsError } = await supabase
-      .from("time_logs")
-      .select("employee_id, started_at")
-      .in("employee_id", employeeIds)
-      .order("started_at", { ascending: false })
-      .limit(5000);
-
-    if (lastLogsError) {
-      console.error("Failed to load last logs:", lastLogsError);
-    } else {
-      for (const row of (lastLogs ?? []) as { employee_id: string; started_at: string }[]) {
-        if (!row.employee_id || !row.started_at) continue;
-        if (!lastLogAtByEmployee.has(row.employee_id)) {
-          lastLogAtByEmployee.set(row.employee_id, row.started_at);
-        }
-      }
-    }
+  for (const row of (lastLogs ?? []) as EmployeeLastLogRow[]) {
+    if (!row.employee_id || !row.started_at) continue;
+    lastLogAtByEmployee.set(row.employee_id, row.started_at);
   }
 
   const now = new Date();
