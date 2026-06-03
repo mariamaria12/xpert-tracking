@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 
-import { requireUserId } from "@/lib/auth/supabaseAuth";
 import {
   getProjectFieldErrors,
   readProjectCreateInput,
@@ -22,10 +21,8 @@ export async function createProject(
     return { errors: getProjectFieldErrors(parsed.error) };
   }
 
-  const createdBy = await requireUserId();
   const result = await createProjectRecord({
     input: parsed.data,
-    createdBy,
   });
 
   if (result.validationErrors) {

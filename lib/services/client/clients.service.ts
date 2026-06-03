@@ -1,5 +1,7 @@
 import { cookies } from "next/headers";
 
+import { insertErrorMessage } from "@/lib/auth/insertErrors";
+import { resolveCreatedByUserId } from "@/lib/auth/supabaseAuth";
 import { createClient } from "@/lib/supabase/server";
 
 import type {
@@ -83,29 +85,16 @@ export async function getClientRows(): Promise<ClientRowsResult> {
 
 export async function createClientCompany({
   input,
-  createdBy,
 }: {
   input: ClientCreateInput;
-  createdBy?: string | null;
 }): Promise<{ error?: string }> {
+  const createdBy = await resolveCreatedByUserId();
+  if ("error" in createdBy) {
+    return { error: createdBy.error };
+  }
+
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
-
-  let resolvedUserId = createdBy ?? null;
-  if (!resolvedUserId) {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
-    if (error) {
-      console.error("Failed to resolve user:", error);
-    }
-    resolvedUserId = user?.id ?? null;
-  }
-
-  if (!resolvedUserId) {
-    return { error: "You must be signed in to add clients." };
-  }
 
   const { error } = await supabase.from("clients").insert({
     company_name: input.companyName,
@@ -117,12 +106,12 @@ export async function createClientCompany({
     delivery_address: toNullIfEmpty(input.deliveryAddress),
     status: toUndefinedIfEmpty(input.status),
     notes: toNullIfEmpty(input.notes),
-    created_by: resolvedUserId,
+    created_by: createdBy.userId,
   } satisfies Database["public"]["Tables"]["clients"]["Insert"]);
 
   if (error) {
     console.error("Failed to create client:", error);
-    return { error: error.message };
+    return { error: insertErrorMessage(error) };
   }
 
   return {};

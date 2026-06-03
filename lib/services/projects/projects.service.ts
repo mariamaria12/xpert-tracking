@@ -1,5 +1,7 @@
 import { cookies } from "next/headers";
 
+import { insertErrorMessage } from "@/lib/auth/insertErrors";
+import { resolveCreatedByUserId } from "@/lib/auth/supabaseAuth";
 import { createClient } from "@/lib/supabase/server";
 
 import { parseDueDate, parseEstimatedHours } from "./projects.schema";
@@ -101,10 +103,8 @@ export async function getProjectRows(): Promise<ProjectRowsResult> {
 
 export async function createProjectRecord({
   input,
-  createdBy,
 }: {
   input: ProjectCreateInput;
-  createdBy?: string | null;
 }): Promise<{
   error?: string;
   validationErrors?: { estimatedHours?: string[]; dueDate?: string[] };
@@ -119,24 +119,13 @@ export async function createProjectRecord({
     return { validationErrors: { dueDate: ["Enter a valid date."] } };
   }
 
+  const createdBy = await resolveCreatedByUserId();
+  if ("error" in createdBy) {
+    return { error: createdBy.error };
+  }
+
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
-
-  let resolvedUserId = createdBy ?? null;
-  if (!resolvedUserId) {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
-    if (error) {
-      console.error("Failed to resolve user:", error);
-    }
-    resolvedUserId = user?.id ?? null;
-  }
-
-  if (!resolvedUserId) {
-    return { error: "You must be signed in to add projects." };
-  }
 
   const { error } = await supabase.from("projects").insert({
     name: input.name,
@@ -145,12 +134,12 @@ export async function createProjectRecord({
     estimated_hours: estimated,
     due_date: due,
     description: toNullIfEmpty(input.description),
-    created_by: resolvedUserId,
+    created_by: createdBy.userId,
   } satisfies Database["public"]["Tables"]["projects"]["Insert"]);
 
   if (error) {
     console.error("Failed to create project:", error);
-    return { error: error.message };
+    return { error: insertErrorMessage(error) };
   }
 
   return {};

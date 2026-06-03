@@ -60,7 +60,7 @@ export type Database = {
           company_name: string
           contact_person?: string | null
           created_at?: string
-          created_by: string
+          created_by?: string
           delivery_address?: string | null
           email?: string | null
           id?: string
@@ -113,7 +113,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          created_by: string
+          created_by?: string
           email?: string | null
           first_name: string
           hourly_rate?: number | null
@@ -177,7 +177,7 @@ export type Database = {
           client_id: string
           completed_at?: string | null
           created_at?: string
-          created_by: string
+          created_by?: string
           description?: string | null
           due_date?: string | null
           estimated_hours?: number | null

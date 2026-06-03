@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 
-import { requireUserId } from "@/lib/auth/supabaseAuth";
 import {
   getEmployeeFieldErrors,
   readEmployeeCreateInput,
@@ -22,10 +21,8 @@ export async function createEmployee(
     return { errors: getEmployeeFieldErrors(parsed.error) };
   }
 
-  const createdBy = await requireUserId();
   const { error } = await createEmployeeRecord({
     input: parsed.data,
-    createdBy,
   });
 
   if (error) {

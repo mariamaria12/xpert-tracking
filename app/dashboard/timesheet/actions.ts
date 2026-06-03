@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 
-import { requireUserId } from "@/lib/auth/supabaseAuth";
 import {
   getTimesheetFieldErrors,
   readTimesheetCreateInput,
@@ -25,10 +24,8 @@ export async function createTimesheet(
     return { errors: getTimesheetFieldErrors(parsed.error) };
   }
 
-  const createdBy = await requireUserId();
   const result = await createTimesheetRecord({
     input: parsed.data,
-    createdBy,
   });
 
   if (result.validationErrors) {

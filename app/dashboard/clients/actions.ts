@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 
-import { requireUserId } from "@/lib/auth/supabaseAuth";
 import {
   readClientCreateInput,
   readClientUpdateInput,
@@ -22,10 +21,8 @@ export async function createCompany(
     return { errors: getClientFieldErrors(parsed.error) };
   }
 
-  const createdBy = await requireUserId();
   const { error } = await createClientCompany({
     input: parsed.data,
-    createdBy,
   });
 
   if (error) {

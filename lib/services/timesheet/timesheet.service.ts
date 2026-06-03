@@ -2,6 +2,8 @@ import { cookies } from "next/headers";
 
 import { formatHoursMinutes } from "@/dashboard/people/formatDuration";
 import { getTimesheetStatusDisplay } from "@/dashboard/timesheet/timesheetStatus";
+import { insertErrorMessage } from "@/lib/auth/insertErrors";
+import { resolveCreatedByUserId } from "@/lib/auth/supabaseAuth";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/utils";
 
@@ -228,10 +230,8 @@ export async function getTimesheetPickerOptions(): Promise<{
 
 export async function createTimesheetRecord({
   input,
-  createdBy,
 }: {
   input: TimesheetCreateInput;
-  createdBy?: string | null;
 }): Promise<{ error?: string; validationErrors?: { startedAt?: string[]; endedAt?: string[] } }> {
   const started = parseDateTimeLocal(input.startedAt);
   const ended = input.endedAt ? parseDateTimeLocal(input.endedAt) : null;
@@ -245,24 +245,13 @@ export async function createTimesheetRecord({
 
   const durationMinutes = ended ? computeDurationMinutes(started, ended) : null;
 
+  const createdBy = await resolveCreatedByUserId();
+  if ("error" in createdBy) {
+    return { error: createdBy.error };
+  }
+
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
-
-  let resolvedUserId = createdBy ?? null;
-  if (!resolvedUserId) {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
-    if (error) {
-      console.error("Failed to resolve user:", error);
-    }
-    resolvedUserId = user?.id ?? null;
-  }
-
-  if (!resolvedUserId) {
-    return { error: "You must be signed in to add time logs." };
-  }
 
   const { error } = await supabase.from("time_logs").insert({
     employee_id: input.employeeId,
@@ -272,12 +261,12 @@ export async function createTimesheetRecord({
     duration_minutes: durationMinutes,
     activity: toNullIfEmpty(input.activity),
     notes: toNullIfEmpty(input.notes),
-    created_by: resolvedUserId,
+    created_by: createdBy.userId,
   } satisfies Database["public"]["Tables"]["time_logs"]["Insert"]);
 
   if (error) {
     console.error("Failed to create time log:", error);
-    return { error: error.message };
+    return { error: insertErrorMessage(error) };
   }
 
   return {};

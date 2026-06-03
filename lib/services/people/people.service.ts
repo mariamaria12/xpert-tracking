@@ -2,6 +2,8 @@ import { cookies } from "next/headers";
 
 import { getHoursWeekDisplay } from "@/dashboard/people/hoursWeekDisplay";
 import { getLastLogDisplay } from "@/dashboard/people/lastLogDisplay";
+import { insertErrorMessage } from "@/lib/auth/insertErrors";
+import { resolveCreatedByUserId } from "@/lib/auth/supabaseAuth";
 import { createClient } from "@/lib/supabase/server";
 
 import type {
@@ -148,29 +150,16 @@ export async function getPeopleRows(): Promise<PeopleRowsResult> {
 
 export async function createEmployeeRecord({
   input,
-  createdBy,
 }: {
   input: EmployeeCreateInput;
-  createdBy?: string | null;
 }): Promise<{ error?: string }> {
+  const createdBy = await resolveCreatedByUserId();
+  if ("error" in createdBy) {
+    return { error: createdBy.error };
+  }
+
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
-
-  let resolvedUserId = createdBy ?? null;
-  if (!resolvedUserId) {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
-    if (error) {
-      console.error("Failed to resolve user:", error);
-    }
-    resolvedUserId = user?.id ?? null;
-  }
-
-  if (!resolvedUserId) {
-    return { error: "You must be signed in to add people." };
-  }
 
   const { error } = await supabase.from("employees").insert({
     first_name: input.firstName,
@@ -178,12 +167,12 @@ export async function createEmployeeRecord({
     email: toNullIfEmpty(input.email),
     phone: toNullIfEmpty(input.phone),
     role: toNullIfEmpty(input.role),
-    created_by: resolvedUserId,
+    created_by: createdBy.userId,
   } satisfies Database["public"]["Tables"]["employees"]["Insert"]);
 
   if (error) {
     console.error("Failed to create employee:", error);
-    return { error: error.message };
+    return { error: insertErrorMessage(error) };
   }
 
   return {};
