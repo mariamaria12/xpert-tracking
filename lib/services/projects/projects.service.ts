@@ -101,11 +101,7 @@ export async function getProjectRows(): Promise<ProjectRowsResult> {
   return { rows };
 }
 
-export async function createProjectRecord({
-  input,
-}: {
-  input: ProjectCreateInput;
-}): Promise<{
+export async function createProjectRecord({ input }: { input: ProjectCreateInput }): Promise<{
   error?: string;
   validationErrors?: { estimatedHours?: string[]; dueDate?: string[] };
 }> {

@@ -1,7 +1,6 @@
 import { cookies } from "next/headers";
 import { cache } from "react";
 
-
 import { AUTH_REQUIRED_ERROR } from "@/lib/auth/insertErrors";
 import { createClient } from "@/lib/supabase/server";
 
@@ -34,9 +33,7 @@ export async function requireUserId(): Promise<string> {
 }
 
 /** One cached getUser() per request — use for create inserts (DB default auth.uid() is unreliable via PostgREST). */
-export async function resolveCreatedByUserId(): Promise<
-  { userId: string } | { error: string }
-> {
+export async function resolveCreatedByUserId(): Promise<{ userId: string } | { error: string }> {
   const user = await getUser();
   if (!user?.id) {
     return { error: AUTH_REQUIRED_ERROR };
