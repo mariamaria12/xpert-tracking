@@ -1,6 +1,7 @@
 import { Truck } from "lucide-react";
-import LoginForm from "@/ui/login/LoginForm";
 import { Suspense } from "react";
+
+import LoginForm from "@/ui/login/LoginForm";
 
 export default function LoginPage() {
   return (

@@ -20,7 +20,9 @@ export function getTimesheetFieldErrors(error: z.ZodError): TimesheetFormErrors 
 
   for (const issue of error.issues) {
     const key = issue.path[0];
-    if (typeof key !== "string") continue;
+    if (typeof key !== "string") {
+      continue;
+    }
     const existing = fieldErrors[key as keyof TimesheetFormErrors] ?? [];
     fieldErrors[key as keyof TimesheetFormErrors] = [...existing, issue.message];
   }
@@ -55,18 +57,12 @@ export function parseDateTimeLocal(value: string) {
   // `datetime-local` submits `YYYY-MM-DDTHH:mm` (no timezone).
   // Parsing via `new Date(value)` can vary by runtime; parse manually.
   const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(value.trim());
-  if (!match) return null;
+  if (!match) {
+    return null;
+  }
 
   const [, y, m, d, hh, mm] = match;
-  const date = new Date(
-    Number(y),
-    Number(m) - 1,
-    Number(d),
-    Number(hh),
-    Number(mm),
-    0,
-    0,
-  );
+  const date = new Date(Number(y), Number(m) - 1, Number(d), Number(hh), Number(mm), 0, 0);
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
@@ -74,4 +70,3 @@ export function computeDurationMinutes(startedAt: Date, endedAt: Date) {
   const diff = Math.round((endedAt.getTime() - startedAt.getTime()) / 60000);
   return diff > 0 ? diff : null;
 }
-

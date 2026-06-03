@@ -1,17 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
+import { cn } from "@/lib/utils";
 import Sidebar from "@/ui/dashboard/Sidebar";
 import Topbar from "@/ui/dashboard/Topbar";
-import { cn } from "@/lib/utils";
 
 const MD_MEDIA_QUERY = "(min-width: 768px)";
 
-export default function DashboardShell({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function DashboardShell({ children }: { children: React.ReactNode }) {
   const [expanded, setExpanded] = useState(true);
 
   useEffect(() => {
@@ -32,7 +29,7 @@ export default function DashboardShell({
       <main
         className={cn(
           "min-h-screen bg-[#0B1220] transition-[margin] duration-200",
-          expanded ? "ml-64" : "ml-20",
+          expanded ? "ml-64" : "ml-20"
         )}
       >
         <Topbar onToggleSidebar={toggleSidebar} sidebarExpanded={expanded} />

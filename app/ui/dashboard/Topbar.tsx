@@ -4,11 +4,21 @@ import { Bell, PanelLeft } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 function titleFromPath(pathname: string): string {
-  if (pathname === "/dashboard") return "Home";
-  if (pathname.startsWith("/dashboard/projects")) return "Projects";
-  if (pathname.startsWith("/dashboard/people")) return "People";
-  if (pathname.startsWith("/dashboard/timesheet")) return "Timesheet";
-  if (pathname.startsWith("/dashboard/tools")) return "Tools";
+  if (pathname === "/dashboard") {
+    return "Home";
+  }
+  if (pathname.startsWith("/dashboard/projects")) {
+    return "Projects";
+  }
+  if (pathname.startsWith("/dashboard/people")) {
+    return "People";
+  }
+  if (pathname.startsWith("/dashboard/timesheet")) {
+    return "Timesheet";
+  }
+  if (pathname.startsWith("/dashboard/tools")) {
+    return "Tools";
+  }
   return "Dashboard";
 }
 
@@ -17,10 +27,7 @@ type TopbarProps = {
   sidebarExpanded: boolean;
 };
 
-export default function Topbar({
-  onToggleSidebar,
-  sidebarExpanded,
-}: TopbarProps) {
+export default function Topbar({ onToggleSidebar, sidebarExpanded }: TopbarProps) {
   const pathname = usePathname();
   const title = titleFromPath(pathname);
 
@@ -36,9 +43,7 @@ export default function Topbar({
         >
           <PanelLeft className="h-5 w-5" aria-hidden />
         </button>
-        <h1 className="truncate text-base font-semibold text-white sm:text-lg">
-          {title}
-        </h1>
+        <h1 className="truncate text-base font-semibold text-white sm:text-lg">{title}</h1>
       </div>
       <div className="flex shrink-0 items-center gap-3 sm:gap-4">
         <input

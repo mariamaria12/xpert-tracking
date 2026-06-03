@@ -22,4 +22,3 @@ export type ActiveClientSummary = {
   companyName: string;
   activeProjectsCount: number;
 };
-

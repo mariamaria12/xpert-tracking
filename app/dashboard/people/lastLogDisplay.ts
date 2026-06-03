@@ -23,8 +23,7 @@ function addDays(date: Date, days: number) {
 
 function calendarDaysBetween(lastLogDay: Date, today: Date) {
   return Math.floor(
-    (startOfDay(today).getTime() - startOfDay(lastLogDay).getTime()) /
-      (24 * 60 * 60 * 1000),
+    (startOfDay(today).getTime() - startOfDay(lastLogDay).getTime()) / (24 * 60 * 60 * 1000)
   );
 }
 
@@ -33,11 +32,15 @@ function isWeekendOnlyGap(lastLogDay: Date, today: Date) {
   let current = addDays(startOfDay(lastLogDay), 1);
   const end = startOfDay(today);
 
-  if (current >= end) return false;
+  if (current >= end) {
+    return false;
+  }
 
   while (current < end) {
     const weekday = current.getDay();
-    if (weekday !== 0 && weekday !== 6) return false;
+    if (weekday !== 0 && weekday !== 6) {
+      return false;
+    }
     current = addDays(current, 1);
   }
 
@@ -47,15 +50,25 @@ function isWeekendOnlyGap(lastLogDay: Date, today: Date) {
 function getLastLogStatus(lastLogDay: Date, today: Date): LastLogStatus {
   const diffDays = calendarDaysBetween(lastLogDay, today);
 
-  if (diffDays === 0) return "green";
-  if (diffDays <= 2) return "yellow";
-  if (isWeekendOnlyGap(lastLogDay, today)) return "yellow";
+  if (diffDays === 0) {
+    return "green";
+  }
+  if (diffDays <= 2) {
+    return "yellow";
+  }
+  if (isWeekendOnlyGap(lastLogDay, today)) {
+    return "yellow";
+  }
   return "red";
 }
 
 function getDayLabel(lastLogAt: Date, diffDays: number) {
-  if (diffDays === 0) return "Today";
-  if (diffDays === 1) return "Yesterday";
+  if (diffDays === 0) {
+    return "Today";
+  }
+  if (diffDays === 1) {
+    return "Yesterday";
+  }
 
   return new Intl.DateTimeFormat("en-US", { weekday: "short" }).format(lastLogAt);
 }
@@ -67,12 +80,16 @@ function getTimeLabel(lastLogAt: Date) {
 /** Compute display fields once on the server to avoid hydration mismatches. */
 export function getLastLogDisplay(
   value: string | null,
-  referenceDate: Date = new Date(),
+  referenceDate: Date = new Date()
 ): LastLogDisplay | null {
-  if (!value) return null;
+  if (!value) {
+    return null;
+  }
 
   const lastLogAt = new Date(value);
-  if (Number.isNaN(lastLogAt.getTime())) return null;
+  if (Number.isNaN(lastLogAt.getTime())) {
+    return null;
+  }
 
   const diffDays = calendarDaysBetween(lastLogAt, referenceDate);
 

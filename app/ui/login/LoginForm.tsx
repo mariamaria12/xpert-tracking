@@ -1,7 +1,8 @@
 "use client";
 
-import { authenticate } from "@/lib/auth/actions";
 import { useActionState } from "react";
+
+import { authenticate } from "@/lib/auth/actions";
 
 const inputClassName =
   "w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-400";
@@ -14,16 +15,9 @@ type LoginFormProps = {
 };
 
 export default function LoginForm({ headingId }: LoginFormProps) {
-  const [errorMessage, formAction, isPending] = useActionState(
-    authenticate,
-    undefined,
-  );
+  const [errorMessage, formAction, isPending] = useActionState(authenticate, undefined);
   return (
-    <form
-      action={formAction}
-      className="space-y-4"
-      aria-labelledby={headingId}
-    >
+    <form action={formAction} className="space-y-4" aria-labelledby={headingId}>
       <div>
         <label htmlFor="email" className="mb-1 block text-sm text-white/70">
           Email
@@ -57,10 +51,8 @@ export default function LoginForm({ headingId }: LoginFormProps) {
         Sign In
       </button>
       <div className="flex h-8 items-end space-x-1">
-          {errorMessage && (
-              <p className="text-sm text-red-500">{errorMessage}</p>
-          )}
-        </div>
+        {errorMessage && <p className="text-sm text-red-500">{errorMessage}</p>}
+      </div>
     </form>
   );
 }

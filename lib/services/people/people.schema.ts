@@ -24,7 +24,9 @@ export function getEmployeeFieldErrors(error: z.ZodError): EmployeeFormErrors {
 
   for (const issue of error.issues) {
     const key = issue.path[0];
-    if (typeof key !== "string") continue;
+    if (typeof key !== "string") {
+      continue;
+    }
     const existing = fieldErrors[key as keyof EmployeeFormErrors] ?? [];
     fieldErrors[key as keyof EmployeeFormErrors] = [...existing, issue.message];
   }

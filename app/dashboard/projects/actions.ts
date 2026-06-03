@@ -1,21 +1,20 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+
+import { requireUserId } from "@/lib/auth/supabaseAuth";
 import {
   getProjectFieldErrors,
   readProjectCreateInput,
   readProjectUpdateInput,
 } from "@/lib/services/projects/projects.schema";
-import {
-  createProjectRecord,
-  updateProjectRecord,
-} from "@/lib/services/projects/projects.service";
+import { createProjectRecord, updateProjectRecord } from "@/lib/services/projects/projects.service";
+
 import type { ProjectFormState } from "@/lib/services/projects/projects.types";
-import { requireUserId } from "@/lib/auth/supabaseAuth";
 
 export async function createProject(
   _prevState: ProjectFormState,
-  formData: FormData,
+  formData: FormData
 ): Promise<ProjectFormState> {
   const parsed = readProjectCreateInput(formData);
 
@@ -43,7 +42,7 @@ export async function createProject(
 
 export async function updateProject(
   _prevState: ProjectFormState,
-  formData: FormData,
+  formData: FormData
 ): Promise<ProjectFormState> {
   const parsed = readProjectUpdateInput(formData);
 

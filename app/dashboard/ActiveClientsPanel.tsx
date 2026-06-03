@@ -2,11 +2,7 @@ import Link from "next/link";
 
 import type { ActiveClientSummary } from "@/lib/services/home/home.types";
 
-export default function ActiveClientsPanel({
-  clients,
-}: {
-  clients: ActiveClientSummary[];
-}) {
+export default function ActiveClientsPanel({ clients }: { clients: ActiveClientSummary[] }) {
   return (
     <div className="card">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
@@ -26,9 +22,7 @@ export default function ActiveClientsPanel({
       </div>
 
       {clients.length === 0 ? (
-        <p className="py-8 text-center text-sm text-white/40">
-          No active clients right now.
-        </p>
+        <p className="py-8 text-center text-sm text-white/40">No active clients right now.</p>
       ) : (
         <div className="divide-y divide-white/10">
           {clients.map((client) => (
@@ -37,9 +31,7 @@ export default function ActiveClientsPanel({
               className="flex flex-wrap items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"
             >
               <div className="min-w-0">
-                <p className="truncate font-medium text-white/80">
-                  {client.companyName}
-                </p>
+                <p className="truncate font-medium text-white/80">{client.companyName}</p>
               </div>
               <div className="text-right text-sm">
                 <p className="text-white/40">Active projects</p>
@@ -52,4 +44,3 @@ export default function ActiveClientsPanel({
     </div>
   );
 }
-

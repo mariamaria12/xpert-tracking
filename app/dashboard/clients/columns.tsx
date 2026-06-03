@@ -1,9 +1,9 @@
 import React from "react";
 
-import type { DataTableColumn } from "@/ui/table/DataTable";
 import EditClientDialog from "./EditClientDialog";
 
 import type { ClientRow } from "@/lib/services/client/clients.types";
+import type { DataTableColumn } from "@/ui/table/DataTable";
 
 export const clientColumns: DataTableColumn<ClientRow>[] = [
   {
@@ -12,9 +12,7 @@ export const clientColumns: DataTableColumn<ClientRow>[] = [
     cell: (row) => (
       <div className="min-w-0">
         <div className="truncate font-medium text-white/80">{row.companyName}</div>
-        <div className="mt-0.5 truncate text-xs text-white/40">
-          {row.industry ?? "—"}
-        </div>
+        <div className="mt-0.5 truncate text-xs text-white/40">{row.industry ?? "—"}</div>
       </div>
     ),
   },
@@ -63,9 +61,7 @@ export const clientColumns: DataTableColumn<ClientRow>[] = [
     id: "notes",
     header: "Notes",
     visibleByDefault: false,
-    cell: (row) => (
-      <span className="text-white/80">{row.notes?.trim() ? row.notes : "—"}</span>
-    ),
+    cell: (row) => <span className="text-white/80">{row.notes?.trim() ? row.notes : "—"}</span>,
   },
   {
     id: "actions",
@@ -74,4 +70,3 @@ export const clientColumns: DataTableColumn<ClientRow>[] = [
     cell: (row) => <EditClientDialog row={row} />,
   },
 ];
-

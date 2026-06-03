@@ -3,8 +3,8 @@ import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 
 import AddProjectDialog from "./AddProjectDialog";
-import ProjectsTable from "./ProjectsTable";
 import { getProjectRows } from "./getProjectRows";
+import ProjectsTable from "./ProjectsTable";
 
 type ClientDbRow = { id: string; company_name: string };
 

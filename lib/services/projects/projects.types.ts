@@ -47,4 +47,3 @@ export type ProjectFormState =
 export type ProjectColumnsArgs = {
   clients: ClientOption[];
 };
-

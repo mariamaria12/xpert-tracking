@@ -29,9 +29,7 @@ export const HOME_INACTIVE_PROJECT_STATUSES = [
   "cancelled",
 ] as const;
 
-const homeInactiveSet = new Set<string>(
-  HOME_INACTIVE_PROJECT_STATUSES.map((s) => s.toLowerCase()),
-);
+const homeInactiveSet = new Set<string>(HOME_INACTIVE_PROJECT_STATUSES.map((s) => s.toLowerCase()));
 
 export function formatProjectStatusLabel(status: string) {
   return status
@@ -48,4 +46,3 @@ export const projectStatusOptions = PROJECT_STATUSES.map((status) => ({
   id: status,
   label: formatProjectStatusLabel(status),
 }));
-

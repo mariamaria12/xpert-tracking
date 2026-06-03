@@ -1,8 +1,9 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { Columns3 } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+
+import { cn } from "@/lib/utils";
 
 export type DataTableColumn<T> = {
   id: string;
@@ -34,11 +35,13 @@ export default function DataTable<T>({
   getRowId,
 }: DataTableProps<T>) {
   const initialVisible = useMemo(() => {
-    const visible = columns
-      .filter((c) => c.visibleByDefault ?? true)
-      .map((c) => c.id);
-    if (visible.length > 0) return visible;
-    if (columns.length > 0) return [columns[0]?.id].filter(Boolean) as string[];
+    const visible = columns.filter((c) => c.visibleByDefault ?? true).map((c) => c.id);
+    if (visible.length > 0) {
+      return visible;
+    }
+    if (columns.length > 0) {
+      return [columns[0]?.id].filter(Boolean) as string[];
+    }
     return [];
   }, [columns]);
 
@@ -47,13 +50,12 @@ export default function DataTable<T>({
   const columnsMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!columnsOpen) return;
+    if (!columnsOpen) {
+      return;
+    }
 
     function handlePointerDown(event: PointerEvent) {
-      if (
-        columnsMenuRef.current &&
-        !columnsMenuRef.current.contains(event.target as Node)
-      ) {
+      if (columnsMenuRef.current && !columnsMenuRef.current.contains(event.target as Node)) {
         setColumnsOpen(false);
       }
     }
@@ -72,7 +74,9 @@ export default function DataTable<T>({
       const isVisible = prev.includes(id);
       if (isVisible) {
         // Prevent a "no columns" table.
-        if (prev.length <= 1) return prev;
+        if (prev.length <= 1) {
+          return prev;
+        }
         return prev.filter((c) => c !== id);
       }
       return [...prev, id];
@@ -82,8 +86,7 @@ export default function DataTable<T>({
   const empty = emptyState ?? { title: "No results" };
 
   const showColumnToggle = columns.length > 1;
-  const columnCount =
-    visibleColumns.length + (showColumnToggle ? 1 : 0);
+  const columnCount = visibleColumns.length + (showColumnToggle ? 1 : 0);
 
   const columnToggleMenu = showColumnToggle ? (
     <div ref={columnsMenuRef} className="relative">
@@ -110,7 +113,7 @@ export default function DataTable<T>({
                   key={col.id}
                   className={cn(
                     "flex items-center gap-2 text-sm text-white/70",
-                    isLastVisible ? "opacity-50" : "cursor-pointer",
+                    isLastVisible ? "opacity-50" : "cursor-pointer"
                   )}
                 >
                   <input
@@ -143,10 +146,7 @@ export default function DataTable<T>({
               {visibleColumns.map((col) => (
                 <th
                   key={col.id}
-                  className={cn(
-                    "p-4 font-medium",
-                    col.align === "right" && "text-right",
-                  )}
+                  className={cn("p-4 font-medium", col.align === "right" && "text-right")}
                 >
                   {col.header}
                 </th>
@@ -182,19 +182,11 @@ export default function DataTable<T>({
                   className="border-t border-white/10 text-white/20 transition hover:bg-white/5"
                 >
                   {visibleColumns.map((col) => (
-                    <td
-                      key={col.id}
-                      className={cn(
-                        "p-4",
-                        col.align === "right" && "text-right",
-                      )}
-                    >
+                    <td key={col.id} className={cn("p-4", col.align === "right" && "text-right")}>
                       {col.cell(row)}
                     </td>
                   ))}
-                  {showColumnToggle ? (
-                    <td className="w-12 p-4" aria-hidden />
-                  ) : null}
+                  {showColumnToggle ? <td className="w-12 p-4" aria-hidden /> : null}
                 </tr>
               ))
             )}
@@ -204,4 +196,3 @@ export default function DataTable<T>({
     </div>
   );
 }
-

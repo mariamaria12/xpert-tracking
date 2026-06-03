@@ -12,8 +12,12 @@ export async function getUser(): Promise<SupabaseAuthUser | null> {
   const supabase = createClient(cookieStore);
   const { data, error } = await supabase.auth.getUser();
 
-  if (error) return null;
-  if (!data.user) return null;
+  if (error) {
+    return null;
+  }
+  if (!data.user) {
+    return null;
+  }
 
   return { id: data.user.id, email: data.user.email ?? null };
 }
@@ -37,4 +41,3 @@ export async function signOut() {
   const supabase = createClient(cookieStore);
   return await supabase.auth.signOut();
 }
-

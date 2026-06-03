@@ -3,10 +3,12 @@
 import { Plus } from "lucide-react";
 import { useActionState, useEffect, useRef, useState } from "react";
 
-import SelectPicker from "../timesheet/SelectPicker";
-import type { ProjectFormState } from "@/lib/services/projects/projects.types";
-import { createProject } from "./actions";
 import { projectStatusOptions } from "@/lib/services/projects/projectStatuses";
+
+import { createProject } from "./actions";
+import SelectPicker from "../timesheet/SelectPicker";
+
+import type { ProjectFormState } from "@/lib/services/projects/projects.types";
 
 export type ClientOption = { id: string; label: string };
 
@@ -14,7 +16,9 @@ const inputClassName =
   "w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-400";
 
 function FieldError({ messages }: { messages?: string[] }) {
-  if (!messages?.length) return null;
+  if (!messages?.length) {
+    return null;
+  }
   return <p className="mt-1 text-sm text-red-400">{messages[0]}</p>;
 }
 
@@ -24,7 +28,7 @@ export default function AddProjectDialog({ clients }: { clients: ClientOption[] 
 
   const [state, formAction, isPending] = useActionState<ProjectFormState, FormData>(
     createProject,
-    undefined,
+    undefined
   );
 
   const defaultClientId = clients[0]?.id ?? "";
@@ -173,9 +177,7 @@ export default function AddProjectDialog({ clients }: { clients: ClientOption[] 
             </div>
           </div>
 
-          {state?.message ? (
-            <p className="mt-4 text-sm text-red-400">{state.message}</p>
-          ) : null}
+          {state?.message ? <p className="mt-4 text-sm text-red-400">{state.message}</p> : null}
 
           <div className="mt-6 flex justify-end gap-3">
             <button

@@ -1,7 +1,8 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { useEffect, useMemo, useRef, useState } from "react";
+
+import { cn } from "@/lib/utils";
 
 export type SelectPickerOption = {
   id: string;
@@ -34,7 +35,9 @@ export default function SelectPicker({
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      return;
+    }
     function onPointerDown(e: PointerEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false);
@@ -44,16 +47,11 @@ export default function SelectPicker({
     return () => document.removeEventListener("pointerdown", onPointerDown);
   }, [open]);
 
-  const selected = useMemo(
-    () => options.find((o) => o.id === value) ?? null,
-    [options, value],
-  );
+  const selected = useMemo(() => options.find((o) => o.id === value) ?? null, [options, value]);
 
   return (
     <div ref={containerRef} className="relative">
-      {name ? (
-        <input type="hidden" name={name} value={value} required={required} />
-      ) : null}
+      {name ? <input type="hidden" name={name} value={value} required={required} /> : null}
 
       <button
         id={id}
@@ -94,7 +92,7 @@ export default function SelectPicker({
                   opt.isDimmed && "opacity-70",
                   active
                     ? "bg-white/10 text-white"
-                    : "text-white/70 hover:bg-white/5 hover:text-white",
+                    : "text-white/70 hover:bg-white/5 hover:text-white"
                 )}
               >
                 <div className="flex items-center justify-between gap-3">
@@ -103,7 +101,7 @@ export default function SelectPicker({
                     <span
                       className={cn(
                         "shrink-0 text-xs font-medium",
-                        opt.rightLabelClassName ?? "text-white/50",
+                        opt.rightLabelClassName ?? "text-white/50"
                       )}
                     >
                       {opt.rightLabel}
@@ -118,4 +116,3 @@ export default function SelectPicker({
     </div>
   );
 }
-

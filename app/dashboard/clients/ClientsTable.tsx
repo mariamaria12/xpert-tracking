@@ -4,8 +4,9 @@ import { Users } from "lucide-react";
 
 import DataTable from "@/ui/table/DataTable";
 
-import type { ClientRow } from "@/lib/services/client/clients.types";
 import { clientColumns } from "./columns";
+
+import type { ClientRow } from "@/lib/services/client/clients.types";
 
 type ClientsTableProps = {
   rows: ClientRow[];
@@ -34,4 +35,3 @@ export default function ClientsTable({ rows, error }: ClientsTableProps) {
     />
   );
 }
-

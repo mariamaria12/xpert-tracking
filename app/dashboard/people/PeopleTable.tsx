@@ -4,8 +4,9 @@ import { Users } from "lucide-react";
 
 import DataTable from "@/ui/table/DataTable";
 
-import type { PeopleRow } from "@/lib/services/people/people.types";
 import { peopleColumns } from "./columns";
+
+import type { PeopleRow } from "@/lib/services/people/people.types";
 
 type PeopleTableProps = {
   rows: PeopleRow[];

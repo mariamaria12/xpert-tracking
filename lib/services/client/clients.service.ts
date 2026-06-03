@@ -1,9 +1,14 @@
 import { cookies } from "next/headers";
 
 import { createClient } from "@/lib/supabase/server";
-import type { Database } from "@/lib/types/database";
 
-import type { ClientCreateInput, ClientRow, ClientRowsResult, ClientUpdateInput } from "./clients.types";
+import type {
+  ClientCreateInput,
+  ClientRow,
+  ClientRowsResult,
+  ClientUpdateInput,
+} from "./clients.types";
+import type { Database } from "@/lib/types/database";
 
 type ClientDbRow = Pick<
   Database["public"]["Tables"]["clients"]["Row"],
@@ -50,7 +55,7 @@ export async function getClientRows(): Promise<ClientRowsResult> {
       status,
       notes,
       projects(id)
-    `,
+    `
     )
     .order("company_name", { ascending: true });
 

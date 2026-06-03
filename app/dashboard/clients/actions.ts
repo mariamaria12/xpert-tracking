@@ -6,17 +6,15 @@ import { requireUserId } from "@/lib/auth/supabaseAuth";
 import {
   readClientCreateInput,
   readClientUpdateInput,
+  getClientFieldErrors,
 } from "@/lib/services/client/clients.schema";
-import { getClientFieldErrors } from "@/lib/services/client/clients.schema";
-import {
-  createClientCompany,
-  updateClientCompany,
-} from "@/lib/services/client/clients.service";
+import { createClientCompany, updateClientCompany } from "@/lib/services/client/clients.service";
+
 import type { ClientFormState } from "@/lib/services/client/clients.types";
 
 export async function createCompany(
   _prevState: ClientFormState,
-  formData: FormData,
+  formData: FormData
 ): Promise<ClientFormState> {
   const parsed = readClientCreateInput(formData);
 
@@ -40,7 +38,7 @@ export async function createCompany(
 
 export async function updateCompany(
   _prevState: ClientFormState,
-  formData: FormData,
+  formData: FormData
 ): Promise<ClientFormState> {
   const parsed = readClientUpdateInput(formData);
 
@@ -57,4 +55,3 @@ export async function updateCompany(
   revalidatePath("/dashboard/clients");
   return { success: true };
 }
-

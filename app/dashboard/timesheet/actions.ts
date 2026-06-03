@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+
+import { requireUserId } from "@/lib/auth/supabaseAuth";
 import {
   getTimesheetFieldErrors,
   readTimesheetCreateInput,
@@ -10,12 +12,12 @@ import {
   createTimesheetRecord,
   updateTimesheetRecord,
 } from "@/lib/services/timesheet/timesheet.service";
+
 import type { TimesheetFormState } from "@/lib/services/timesheet/timesheet.types";
-import { requireUserId } from "@/lib/auth/supabaseAuth";
 
 export async function createTimesheet(
   _prevState: TimesheetFormState,
-  formData: FormData,
+  formData: FormData
 ): Promise<TimesheetFormState> {
   const parsed = readTimesheetCreateInput(formData);
 
@@ -43,7 +45,7 @@ export async function createTimesheet(
 
 export async function updateTimesheet(
   _prevState: TimesheetFormState,
-  formData: FormData,
+  formData: FormData
 ): Promise<TimesheetFormState> {
   const parsed = readTimesheetUpdateInput(formData);
 
@@ -64,4 +66,3 @@ export async function updateTimesheet(
   revalidatePath("/dashboard/timesheet");
   return { success: true };
 }
-

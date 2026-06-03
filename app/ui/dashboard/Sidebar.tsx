@@ -1,9 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { logout } from "@/lib/auth/actions";
-import { cn } from "@/lib/utils";
 import {
   ChevronLeft,
   ChevronRight,
@@ -14,9 +10,15 @@ import {
   Truck,
   Users,
   Handshake,
-  Wrench
+  Wrench,
 } from "lucide-react";
-import { NavItem } from "@/ui/types";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+import { logout } from "@/lib/auth/actions";
+import { cn } from "@/lib/utils";
+
+import type { NavItem } from "@/ui/types";
 
 const mainNav: NavItem[] = [
   { label: "Home", href: "/dashboard", icon: LayoutDashboard },
@@ -42,7 +44,7 @@ function navLinkClass(active: boolean, expanded: boolean) {
         : "bg-cyan-400/10 text-cyan-400"
       : expanded
         ? "nav-idle"
-        : "text-white/70 hover:bg-white/5 hover:text-white",
+        : "text-white/70 hover:bg-white/5 hover:text-white"
   );
 }
 
@@ -60,16 +62,14 @@ export default function Sidebar({ expanded, onToggle }: SidebarProps) {
     <aside
       className={cn(
         "fixed left-0 top-0 z-50 flex h-screen flex-col border-r border-white/10 bg-[#111827] transition-[width] duration-200",
-        expanded ? "w-64" : "w-20",
+        expanded ? "w-64" : "w-20"
       )}
       aria-label="Main navigation"
     >
       <div className="flex h-16 shrink-0 items-center gap-2 border-b border-white/10 px-3">
         <Truck className="h-7 w-7 shrink-0 text-[#22D3EE]" aria-hidden />
         {expanded ? (
-          <span className="min-w-0 flex-1 truncate font-bold text-[#22D3EE]">
-            trackingXpert
-          </span>
+          <span className="min-w-0 flex-1 truncate font-bold text-[#22D3EE]">trackingXpert</span>
         ) : (
           <span className="sr-only">trackingXpert</span>
         )}

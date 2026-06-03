@@ -3,10 +3,6 @@
 import { Pencil } from "lucide-react";
 import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 
-import SelectPicker from "../timesheet/SelectPicker";
-import type { ClientOption } from "./AddProjectDialog";
-import type { ProjectRow, ProjectFormState } from "@/lib/services/projects/projects.types";
-import { updateProject } from "./actions";
 import {
   formatProjectStatusLabel,
   PROJECT_STATUSES,
@@ -14,11 +10,19 @@ import {
   type ProjectStatus,
 } from "@/lib/services/projects/projectStatuses";
 
+import { updateProject } from "./actions";
+import SelectPicker from "../timesheet/SelectPicker";
+
+import type { ClientOption } from "./AddProjectDialog";
+import type { ProjectRow, ProjectFormState } from "@/lib/services/projects/projects.types";
+
 const inputClassName =
   "w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-400";
 
 function FieldError({ messages }: { messages?: string[] }) {
-  if (!messages?.length) return null;
+  if (!messages?.length) {
+    return null;
+  }
   return <p className="mt-1 text-sm text-red-400">{messages[0]}</p>;
 }
 
@@ -37,26 +41,19 @@ export default function EditProjectDialog({
       name: row.name ?? "",
       clientId: row.clientId,
       status: row.status ?? "",
-      estimatedHours:
-        row.estimatedHours === null ? "" : String(row.estimatedHours),
+      estimatedHours: row.estimatedHours === null ? "" : String(row.estimatedHours),
       dueDate: row.dueDateIso ?? "",
       description: row.description ?? "",
     }),
-    [row],
+    [row]
   );
 
   const [clientId, setClientId] = useState(initialValues.clientId);
 
   const statusOptions = useMemo(() => {
     const current = initialValues.status.trim().toLowerCase();
-    if (
-      current &&
-      !PROJECT_STATUSES.includes(current as ProjectStatus)
-    ) {
-      return [
-        { id: current, label: formatProjectStatusLabel(current) },
-        ...projectStatusOptions,
-      ];
+    if (current && !PROJECT_STATUSES.includes(current as ProjectStatus)) {
+      return [{ id: current, label: formatProjectStatusLabel(current) }, ...projectStatusOptions];
     }
     return projectStatusOptions;
   }, [initialValues.status]);
@@ -70,7 +67,7 @@ export default function EditProjectDialog({
 
   const [state, formAction, isPending] = useActionState<ProjectFormState, FormData>(
     updateProject,
-    undefined,
+    undefined
   );
 
   useEffect(() => {
@@ -129,10 +126,7 @@ export default function EditProjectDialog({
           <div className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label
-                  htmlFor={`name-${row.id}`}
-                  className="mb-1 block text-sm text-white/70"
-                >
+                <label htmlFor={`name-${row.id}`} className="mb-1 block text-sm text-white/70">
                   Project name
                 </label>
                 <input
@@ -164,10 +158,7 @@ export default function EditProjectDialog({
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label
-                  htmlFor={`status-${row.id}`}
-                  className="mb-1 block text-sm text-white/70"
-                >
+                <label htmlFor={`status-${row.id}`} className="mb-1 block text-sm text-white/70">
                   Status
                 </label>
                 <SelectPicker
@@ -200,10 +191,7 @@ export default function EditProjectDialog({
             </div>
 
             <div>
-              <label
-                htmlFor={`dueDate-${row.id}`}
-                className="mb-1 block text-sm text-white/70"
-              >
+              <label htmlFor={`dueDate-${row.id}`} className="mb-1 block text-sm text-white/70">
                 Due date
               </label>
               <input
@@ -217,10 +205,7 @@ export default function EditProjectDialog({
             </div>
 
             <div>
-              <label
-                htmlFor={`description-${row.id}`}
-                className="mb-1 block text-sm text-white/70"
-              >
+              <label htmlFor={`description-${row.id}`} className="mb-1 block text-sm text-white/70">
                 Description (optional)
               </label>
               <textarea
@@ -234,9 +219,7 @@ export default function EditProjectDialog({
             </div>
           </div>
 
-          {state?.message ? (
-            <p className="mt-4 text-sm text-red-400">{state.message}</p>
-          ) : null}
+          {state?.message ? <p className="mt-4 text-sm text-red-400">{state.message}</p> : null}
 
           <div className="mt-6 flex justify-end gap-3">
             <button

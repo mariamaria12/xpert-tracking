@@ -1,10 +1,8 @@
 import { cookies } from "next/headers";
 
-import { createClient } from "@/lib/supabase/server";
-import type { Database } from "@/lib/types/database";
-
 import { getHoursWeekDisplay } from "@/dashboard/people/hoursWeekDisplay";
 import { getLastLogDisplay } from "@/dashboard/people/lastLogDisplay";
+import { createClient } from "@/lib/supabase/server";
 
 import type {
   EmployeeCreateInput,
@@ -12,6 +10,7 @@ import type {
   PeopleRow,
   PeopleRowsResult,
 } from "./people.types";
+import type { Database } from "@/lib/types/database";
 
 type EmployeeTimeLogEmbed = Pick<
   Database["public"]["Tables"]["time_logs"]["Row"],
@@ -48,7 +47,9 @@ function getCurrentWeekRange() {
 }
 
 function pickProjectName(value: EmployeeTimeLogEmbed["project"]) {
-  if (!value) return null;
+  if (!value) {
+    return null;
+  }
   const item = Array.isArray(value) ? value[0] : value;
   return item?.name?.trim() || null;
 }
@@ -56,7 +57,7 @@ function pickProjectName(value: EmployeeTimeLogEmbed["project"]) {
 function aggregateEmployeeTimeLogs(
   logs: EmployeeTimeLogEmbed[] | null | undefined,
   weekStart: Date,
-  weekEnd: Date,
+  weekEnd: Date
 ) {
   let totalMinutes = 0;
   const projectMinutes = new Map<string, number>();
@@ -76,7 +77,9 @@ function aggregateEmployeeTimeLogs(
     totalMinutes += minutes;
 
     const projectName = pickProjectName(log.project);
-    if (!projectName) continue;
+    if (!projectName) {
+      continue;
+    }
 
     projectMinutes.set(projectName, (projectMinutes.get(projectName) ?? 0) + minutes);
   }
@@ -110,7 +113,7 @@ export async function getPeopleRows(): Promise<PeopleRowsResult> {
       phone,
       role,
       time_logs(duration_minutes, started_at, project:projects(name))
-    `,
+    `
     )
     .order("last_name", { ascending: true })
     .order("first_name", { ascending: true });
@@ -124,7 +127,7 @@ export async function getPeopleRows(): Promise<PeopleRowsResult> {
     const { totalMinutes, assignedProject, lastLogAt } = aggregateEmployeeTimeLogs(
       emp.time_logs,
       weekStart,
-      weekEnd,
+      weekEnd
     );
 
     return {
@@ -212,4 +215,3 @@ export async function updateEmployeeRecord({
 
   return {};
 }
-

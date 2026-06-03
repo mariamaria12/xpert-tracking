@@ -28,7 +28,9 @@ export function getClientFieldErrors(error: z.ZodError): ClientFormErrors {
 
   for (const issue of error.issues) {
     const key = issue.path[0];
-    if (typeof key !== "string") continue;
+    if (typeof key !== "string") {
+      continue;
+    }
 
     // Keep the output shape identical to Zod's `flatten().fieldErrors`,
     // but avoid relying on deprecated APIs.

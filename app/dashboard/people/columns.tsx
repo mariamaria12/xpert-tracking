@@ -1,10 +1,11 @@
 import React from "react";
 
-import type { DataTableColumn } from "@/ui/table/DataTable";
 import EditEmployeeDialog from "./EditEmployeeDialog";
 import HoursWeekCard from "./HoursWeekCard";
 import LastLogCard from "./LastLogCard";
+
 import type { PeopleRow } from "@/lib/services/people/people.types";
+import type { DataTableColumn } from "@/ui/table/DataTable";
 
 export const peopleColumns: DataTableColumn<PeopleRow>[] = [
   {
@@ -15,9 +16,7 @@ export const peopleColumns: DataTableColumn<PeopleRow>[] = [
         <span className="font-medium text-white/80">
           {row.firstName} {row.lastName}
         </span>
-        <span className="text-white/50 text-sm">
-          {row.role ?? "—"}
-        </span>
+        <span className="text-white/50 text-sm">{row.role ?? "—"}</span>
       </div>
     ),
   },
@@ -25,24 +24,18 @@ export const peopleColumns: DataTableColumn<PeopleRow>[] = [
     id: "email",
     header: "Email",
     visibleByDefault: false,
-    cell: (row) => (
-      <span className="text-white/80">{row.email ?? "—"}</span>
-    ),
+    cell: (row) => <span className="text-white/80">{row.email ?? "—"}</span>,
   },
   {
     id: "phone",
     header: "Phone",
     visibleByDefault: false,
-    cell: (row) => (
-      <span className="text-white/80">{row.phone ?? "—"}</span>
-    ),
+    cell: (row) => <span className="text-white/80">{row.phone ?? "—"}</span>,
   },
   {
     id: "assignedProject",
     header: "Assigned project",
-    cell: (row) => (
-      <span className="text-white/80">{row.assignedProject ?? "—"}</span>
-    ),
+    cell: (row) => <span className="text-white/80">{row.assignedProject ?? "—"}</span>,
   },
   {
     id: "lastLog",
@@ -61,4 +54,3 @@ export const peopleColumns: DataTableColumn<PeopleRow>[] = [
     cell: (row) => <EditEmployeeDialog row={row} />,
   },
 ];
-

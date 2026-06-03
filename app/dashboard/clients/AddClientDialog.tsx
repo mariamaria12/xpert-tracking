@@ -3,14 +3,17 @@
 import { Plus } from "lucide-react";
 import { useActionState, useEffect, useRef } from "react";
 
-import type { ClientFormState } from "@/lib/services/client/clients.types";
 import { createCompany } from "./actions";
+
+import type { ClientFormState } from "@/lib/services/client/clients.types";
 
 const inputClassName =
   "w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-400";
 
 function FieldError({ messages }: { messages?: string[] }) {
-  if (!messages?.length) return null;
+  if (!messages?.length) {
+    return null;
+  }
   return <p className="mt-1 text-sm text-red-400">{messages[0]}</p>;
 }
 
@@ -20,7 +23,7 @@ export default function AddClientDialog() {
 
   const [state, formAction, isPending] = useActionState<ClientFormState, FormData>(
     createCompany,
-    undefined,
+    undefined
   );
 
   useEffect(() => {
@@ -58,9 +61,7 @@ export default function AddClientDialog() {
           <div className="mb-6 flex items-start justify-between gap-4">
             <div>
               <h2 className="text-lg font-semibold text-white">Add company</h2>
-              <p className="mt-1 text-sm text-white/50">
-                Create a client company record.
-              </p>
+              <p className="mt-1 text-sm text-white/50">Create a client company record.</p>
             </div>
             <button
               type="button"
@@ -75,10 +76,7 @@ export default function AddClientDialog() {
           <div className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label
-                  htmlFor="companyName"
-                  className="mb-1 block text-sm text-white/70"
-                >
+                <label htmlFor="companyName" className="mb-1 block text-sm text-white/70">
                   Company name
                 </label>
                 <input
@@ -106,10 +104,7 @@ export default function AddClientDialog() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label
-                  htmlFor="contactPerson"
-                  className="mb-1 block text-sm text-white/70"
-                >
+                <label htmlFor="contactPerson" className="mb-1 block text-sm text-white/70">
                   Contact person
                 </label>
                 <input
@@ -155,22 +150,14 @@ export default function AddClientDialog() {
                 <label htmlFor="status" className="mb-1 block text-sm text-white/70">
                   Status
                 </label>
-                <input
-                  id="status"
-                  name="status"
-                  className={inputClassName}
-                  placeholder="active"
-                />
+                <input id="status" name="status" className={inputClassName} placeholder="active" />
                 <FieldError messages={state?.errors?.status} />
               </div>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label
-                  htmlFor="billingAddress"
-                  className="mb-1 block text-sm text-white/70"
-                >
+                <label htmlFor="billingAddress" className="mb-1 block text-sm text-white/70">
                   Billing address
                 </label>
                 <input
@@ -182,10 +169,7 @@ export default function AddClientDialog() {
                 <FieldError messages={state?.errors?.billingAddress} />
               </div>
               <div>
-                <label
-                  htmlFor="deliveryAddress"
-                  className="mb-1 block text-sm text-white/70"
-                >
+                <label htmlFor="deliveryAddress" className="mb-1 block text-sm text-white/70">
                   Delivery address
                 </label>
                 <input
@@ -213,9 +197,7 @@ export default function AddClientDialog() {
             </div>
           </div>
 
-          {state?.message ? (
-            <p className="mt-4 text-sm text-red-400">{state.message}</p>
-          ) : null}
+          {state?.message ? <p className="mt-4 text-sm text-red-400">{state.message}</p> : null}
 
           <div className="mt-6 flex justify-end gap-3">
             <button
@@ -238,4 +220,3 @@ export default function AddClientDialog() {
     </>
   );
 }
-

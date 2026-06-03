@@ -3,15 +3,17 @@
 import { Pencil } from "lucide-react";
 import { useActionState, useEffect, useMemo, useRef } from "react";
 
-import type { ClientRow } from "@/lib/services/client/clients.types";
-import type { ClientFormState } from "@/lib/services/client/clients.types";
 import { updateCompany } from "./actions";
+
+import type { ClientRow, ClientFormState } from "@/lib/services/client/clients.types";
 
 const inputClassName =
   "w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-400";
 
 function FieldError({ messages }: { messages?: string[] }) {
-  if (!messages?.length) return null;
+  if (!messages?.length) {
+    return null;
+  }
   return <p className="mt-1 text-sm text-red-400">{messages[0]}</p>;
 }
 
@@ -41,12 +43,12 @@ export default function EditClientDialog({ row }: { row: ClientRow }) {
       row.notes,
       row.phone,
       row.status,
-    ],
+    ]
   );
 
   const [state, formAction, isPending] = useActionState<ClientFormState, FormData>(
     updateCompany,
-    undefined,
+    undefined
   );
 
   useEffect(() => {
@@ -86,9 +88,7 @@ export default function EditClientDialog({ row }: { row: ClientRow }) {
           <div className="mb-6 flex items-start justify-between gap-4">
             <div>
               <h2 className="text-lg font-semibold text-white">Edit company</h2>
-              <p className="mt-1 text-sm text-white/50">
-                Update this client company’s details.
-              </p>
+              <p className="mt-1 text-sm text-white/50">Update this client company’s details.</p>
             </div>
             <button
               type="button"
@@ -119,10 +119,7 @@ export default function EditClientDialog({ row }: { row: ClientRow }) {
                 <FieldError messages={state?.errors?.companyName} />
               </div>
               <div>
-                <label
-                  htmlFor={`industry-${row.id}`}
-                  className="mb-1 block text-sm text-white/70"
-                >
+                <label htmlFor={`industry-${row.id}`} className="mb-1 block text-sm text-white/70">
                   Industry
                 </label>
                 <input
@@ -152,10 +149,7 @@ export default function EditClientDialog({ row }: { row: ClientRow }) {
                 <FieldError messages={state?.errors?.contactPerson} />
               </div>
               <div>
-                <label
-                  htmlFor={`email-${row.id}`}
-                  className="mb-1 block text-sm text-white/70"
-                >
+                <label htmlFor={`email-${row.id}`} className="mb-1 block text-sm text-white/70">
                   Contact email
                 </label>
                 <input
@@ -172,10 +166,7 @@ export default function EditClientDialog({ row }: { row: ClientRow }) {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label
-                  htmlFor={`phone-${row.id}`}
-                  className="mb-1 block text-sm text-white/70"
-                >
+                <label htmlFor={`phone-${row.id}`} className="mb-1 block text-sm text-white/70">
                   Phone
                 </label>
                 <input
@@ -189,10 +180,7 @@ export default function EditClientDialog({ row }: { row: ClientRow }) {
                 <FieldError messages={state?.errors?.phone} />
               </div>
               <div>
-                <label
-                  htmlFor={`status-${row.id}`}
-                  className="mb-1 block text-sm text-white/70"
-                >
+                <label htmlFor={`status-${row.id}`} className="mb-1 block text-sm text-white/70">
                   Status
                 </label>
                 <input
@@ -239,10 +227,7 @@ export default function EditClientDialog({ row }: { row: ClientRow }) {
             </div>
 
             <div>
-              <label
-                htmlFor={`notes-${row.id}`}
-                className="mb-1 block text-sm text-white/70"
-              >
+              <label htmlFor={`notes-${row.id}`} className="mb-1 block text-sm text-white/70">
                 Notes
               </label>
               <textarea
@@ -256,9 +241,7 @@ export default function EditClientDialog({ row }: { row: ClientRow }) {
             </div>
           </div>
 
-          {state?.message ? (
-            <p className="mt-4 text-sm text-red-400">{state.message}</p>
-          ) : null}
+          {state?.message ? <p className="mt-4 text-sm text-red-400">{state.message}</p> : null}
 
           <div className="mt-6 flex justify-end gap-3">
             <button
@@ -281,4 +264,3 @@ export default function EditClientDialog({ row }: { row: ClientRow }) {
     </>
   );
 }
-

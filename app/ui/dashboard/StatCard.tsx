@@ -1,4 +1,4 @@
-import { StatCardProps } from "@/ui/types";
+import type { StatCardProps } from "@/ui/types";
 
 export default function StatCard({ title, value, icon: Icon }: StatCardProps) {
   return (

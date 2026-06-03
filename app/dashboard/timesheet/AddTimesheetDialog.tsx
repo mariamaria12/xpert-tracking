@@ -3,19 +3,22 @@
 import { Plus } from "lucide-react";
 import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 
+import { createTimesheet } from "./actions";
+import SelectPicker from "./SelectPicker";
+
 import type {
   EmployeeOption,
   ProjectOption,
   TimesheetFormState,
 } from "@/lib/services/timesheet/timesheet.types";
-import { createTimesheet } from "./actions";
-import SelectPicker from "./SelectPicker";
 
 const inputClassName =
   "w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-400";
 
 function FieldError({ messages }: { messages?: string[] }) {
-  if (!messages?.length) return null;
+  if (!messages?.length) {
+    return null;
+  }
   return <p className="mt-1 text-sm text-red-400">{messages[0]}</p>;
 }
 
@@ -37,7 +40,7 @@ export default function AddTimesheetDialog({
 
   const [state, formAction, isPending] = useActionState<TimesheetFormState, FormData>(
     createTimesheet,
-    undefined,
+    undefined
   );
 
   const defaultProjectId = projects[0]?.id ?? "";
@@ -66,7 +69,11 @@ export default function AddTimesheetDialog({
 
   return (
     <>
-      <button type="button" className="btn-accent inline-flex items-center gap-2" onClick={openDialog}>
+      <button
+        type="button"
+        className="btn-accent inline-flex items-center gap-2"
+        onClick={openDialog}
+      >
         <Plus className="h-4 w-4" aria-hidden />
         Add timesheet
       </button>
@@ -171,22 +178,30 @@ export default function AddTimesheetDialog({
                 <label htmlFor="activity" className="mb-1 block text-sm text-white/70">
                   Activity (optional)
                 </label>
-                <input id="activity" name="activity" className={inputClassName} placeholder="Welding" />
+                <input
+                  id="activity"
+                  name="activity"
+                  className={inputClassName}
+                  placeholder="Welding"
+                />
                 <FieldError messages={state?.errors?.activity} />
               </div>
               <div>
                 <label htmlFor="notes" className="mb-1 block text-sm text-white/70">
                   Notes (optional)
                 </label>
-                <input id="notes" name="notes" className={inputClassName} placeholder="Column welding" />
+                <input
+                  id="notes"
+                  name="notes"
+                  className={inputClassName}
+                  placeholder="Column welding"
+                />
                 <FieldError messages={state?.errors?.notes} />
               </div>
             </div>
           </div>
 
-          {state?.message ? (
-            <p className="mt-4 text-sm text-red-400">{state.message}</p>
-          ) : null}
+          {state?.message ? <p className="mt-4 text-sm text-red-400">{state.message}</p> : null}
 
           <div className="mt-6 flex justify-end gap-3">
             <button
@@ -209,4 +224,3 @@ export default function AddTimesheetDialog({
     </>
   );
 }
-

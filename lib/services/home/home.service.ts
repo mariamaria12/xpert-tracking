@@ -1,16 +1,11 @@
-import { cache } from "react";
 import { cookies } from "next/headers";
-
-import { createClient } from "@/lib/supabase/server";
-import type { Database } from "@/lib/types/database";
+import { cache } from "react";
 
 import { isActiveHomeProject } from "@/lib/services/projects/projectStatuses";
+import { createClient } from "@/lib/supabase/server";
 
-import type {
-  ActiveClientSummary,
-  ActiveProjectSummary,
-  HomeDashboardData,
-} from "./home.types";
+import type { ActiveClientSummary, ActiveProjectSummary, HomeDashboardData } from "./home.types";
+import type { Database } from "@/lib/types/database";
 
 type ActiveProjectDbRow = Pick<
   Database["public"]["Tables"]["projects"]["Row"],
@@ -25,7 +20,9 @@ type TimeLogDbRow = Pick<
 >;
 
 function pickCompanyName(value: ActiveProjectDbRow["clients"]) {
-  if (!value) return "—";
+  if (!value) {
+    return "—";
+  }
   const item = Array.isArray(value) ? value[0] : value;
   return item?.company_name?.trim() || "—";
 }
@@ -36,20 +33,22 @@ async function fetchActiveHomePanelsData(): Promise<ActiveHomePanelsData> {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
-  const [{ data: timeLogs, error: timeLogsError }, { data: activeProjects, error: activeProjectsError }] =
-    await Promise.all([
-      supabase.from("time_logs").select("project_id, duration_minutes"),
-      supabase
-        .from("projects")
-        .select("id, name, status, estimated_hours, due_date, client_id, clients(company_name)")
-        .order("due_date", { ascending: true }),
-    ]);
+  const [
+    { data: timeLogs, error: timeLogsError },
+    { data: activeProjects, error: activeProjectsError },
+  ] = await Promise.all([
+    supabase.from("time_logs").select("project_id, duration_minutes"),
+    supabase
+      .from("projects")
+      .select("id, name, status, estimated_hours, due_date, client_id, clients(company_name)")
+      .order("due_date", { ascending: true }),
+  ]);
 
   const actualMinutesByProjectId = new Map<string, number>();
   for (const log of (timeLogs ?? []) as TimeLogDbRow[]) {
     actualMinutesByProjectId.set(
       log.project_id,
-      (actualMinutesByProjectId.get(log.project_id) ?? 0) + Number(log.duration_minutes ?? 0),
+      (actualMinutesByProjectId.get(log.project_id) ?? 0) + Number(log.duration_minutes ?? 0)
     );
   }
 
@@ -72,9 +71,13 @@ async function fetchActiveHomePanelsData(): Promise<ActiveHomePanelsData> {
     : (() => {
         const byClientId = new Map<string, ActiveClientSummary>();
         for (const p of (activeProjects ?? []) as ActiveProjectDbRow[]) {
-          if (!isActiveHomeProject(p.status)) continue;
+          if (!isActiveHomeProject(p.status)) {
+            continue;
+          }
           const clientId = p.client_id;
-          if (!clientId) continue;
+          if (!clientId) {
+            continue;
+          }
           const companyName = pickCompanyName(p.clients);
           const current = byClientId.get(clientId);
           byClientId.set(clientId, {
@@ -84,7 +87,7 @@ async function fetchActiveHomePanelsData(): Promise<ActiveHomePanelsData> {
           });
         }
         return Array.from(byClientId.values()).sort((a, b) =>
-          a.companyName.localeCompare(b.companyName),
+          a.companyName.localeCompare(b.companyName)
         );
       })();
 
@@ -112,10 +115,7 @@ export async function getHomeStatCardsData(): Promise<
     { data: timeLogs, error: timeLogsError },
     { data: projects, error: projectsError },
   ] = await Promise.all([
-    supabase
-      .from("employees")
-      .select("id", { count: "exact", head: true })
-      .eq("is_active", true),
+    supabase.from("employees").select("id", { count: "exact", head: true }).eq("is_active", true),
     supabase.from("time_logs").select("project_id, duration_minutes"),
     supabase.from("projects").select("id, status, client_id"),
   ]);
@@ -133,7 +133,9 @@ export async function getHomeStatCardsData(): Promise<
     let activeCount = 0;
 
     for (const project of projects) {
-      if (!isActiveHomeProject(project.status)) continue;
+      if (!isActiveHomeProject(project.status)) {
+        continue;
+      }
       activeCount += 1;
       if (project.client_id) {
         activeClientIds.add(project.client_id);
@@ -161,4 +163,3 @@ export async function getHomeDashboardData(): Promise<HomeDashboardData> {
     ...panels,
   };
 }
-

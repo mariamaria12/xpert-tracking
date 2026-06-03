@@ -8,10 +8,10 @@ Internal operations dashboard for manufacturing and production teams. Track proj
 
 Use these credentials on the deployed Vercel app:
 
-| Field | Value |
-| --- | --- |
-| Email | `test@test.com` |
-| Password | `test123` |
+| Field    | Value           |
+| -------- | --------------- |
+| Email    | `test@test.com` |
+| Password | `test123`       |
 
 ## Features
 
@@ -24,13 +24,13 @@ Use these credentials on the deployed Vercel app:
 
 ## Tech stack
 
-| Layer | Technology |
-| --- | --- |
-| Framework | [Next.js](https://nextjs.org/) 16, [React](https://react.dev/) 19 |
-| Styling | [Tailwind CSS](https://tailwindcss.com/) |
-| Charts | [Recharts](https://recharts.org/) |
-| Database & auth | [Supabase](https://supabase.com/) |
-| Hosting | [Vercel](https://vercel.com/) |
+| Layer           | Technology                                                        |
+| --------------- | ----------------------------------------------------------------- |
+| Framework       | [Next.js](https://nextjs.org/) 16, [React](https://react.dev/) 19 |
+| Styling         | [Tailwind CSS](https://tailwindcss.com/)                          |
+| Charts          | [Recharts](https://recharts.org/)                                 |
+| Database & auth | [Supabase](https://supabase.com/)                                 |
+| Hosting         | [Vercel](https://vercel.com/)                                     |
 
 ## Local development
 
@@ -74,14 +74,14 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Scripts
 
-| Command | Description |
-| --- | --- |
-| `npm run dev` | Start development server |
-| `npm run build` | Production build |
-| `npm run start` | Run production server locally |
-| `npm run lint` | Run ESLint |
-| `npm run db:push` | Push Supabase migrations |
-| `npm run db:reset` | Reset local Supabase database |
+| Command            | Description                           |
+| ------------------ | ------------------------------------- |
+| `npm run dev`      | Start development server              |
+| `npm run build`    | Production build                      |
+| `npm run start`    | Run production server locally         |
+| `npm run lint`     | Run ESLint                            |
+| `npm run db:push`  | Push Supabase migrations              |
+| `npm run db:reset` | Reset local Supabase database         |
 | `npm run db:types` | Generate TypeScript types from schema |
 
 ## Project structure

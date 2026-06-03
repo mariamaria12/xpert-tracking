@@ -3,17 +3,17 @@
 import { Pencil } from "lucide-react";
 import { useActionState, useEffect, useMemo, useRef } from "react";
 
-import type { PeopleRow } from "@/lib/services/people/people.types";
-import type { EmployeeFormState } from "@/lib/services/people/people.types";
-import {
-  updateEmployee,
-} from "./actions";
+import { updateEmployee } from "./actions";
+
+import type { PeopleRow, EmployeeFormState } from "@/lib/services/people/people.types";
 
 const inputClassName =
   "w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-400";
 
 function FieldError({ messages }: { messages?: string[] }) {
-  if (!messages?.length) return null;
+  if (!messages?.length) {
+    return null;
+  }
   return <p className="mt-1 text-sm text-red-400">{messages[0]}</p>;
 }
 
@@ -29,13 +29,13 @@ export default function EditEmployeeDialog({ row }: { row: PeopleRow }) {
       phone: row.phone ?? "",
       role: row.role ?? "",
     }),
-    [row.email, row.firstName, row.lastName, row.phone, row.role],
+    [row.email, row.firstName, row.lastName, row.phone, row.role]
   );
 
-  const [state, formAction, isPending] = useActionState<
-    EmployeeFormState,
-    FormData
-  >(updateEmployee, undefined);
+  const [state, formAction, isPending] = useActionState<EmployeeFormState, FormData>(
+    updateEmployee,
+    undefined
+  );
 
   useEffect(() => {
     if (state?.success) {
@@ -71,9 +71,7 @@ export default function EditEmployeeDialog({ row }: { row: PeopleRow }) {
           <div className="mb-6 flex items-start justify-between gap-4">
             <div>
               <h2 className="text-lg font-semibold text-white">Edit employee</h2>
-              <p className="mt-1 text-sm text-white/50">
-                Update this team member’s details.
-              </p>
+              <p className="mt-1 text-sm text-white/50">Update this team member’s details.</p>
             </div>
             <button
               type="button"
@@ -88,10 +86,7 @@ export default function EditEmployeeDialog({ row }: { row: PeopleRow }) {
           <div className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label
-                  htmlFor={`firstName-${row.id}`}
-                  className="mb-1 block text-sm text-white/70"
-                >
+                <label htmlFor={`firstName-${row.id}`} className="mb-1 block text-sm text-white/70">
                   First name
                 </label>
                 <input
@@ -105,10 +100,7 @@ export default function EditEmployeeDialog({ row }: { row: PeopleRow }) {
                 <FieldError messages={state?.errors?.firstName} />
               </div>
               <div>
-                <label
-                  htmlFor={`lastName-${row.id}`}
-                  className="mb-1 block text-sm text-white/70"
-                >
+                <label htmlFor={`lastName-${row.id}`} className="mb-1 block text-sm text-white/70">
                   Last name
                 </label>
                 <input
@@ -124,10 +116,7 @@ export default function EditEmployeeDialog({ row }: { row: PeopleRow }) {
             </div>
 
             <div>
-              <label
-                htmlFor={`email-${row.id}`}
-                className="mb-1 block text-sm text-white/70"
-              >
+              <label htmlFor={`email-${row.id}`} className="mb-1 block text-sm text-white/70">
                 Email
               </label>
               <input
@@ -142,10 +131,7 @@ export default function EditEmployeeDialog({ row }: { row: PeopleRow }) {
             </div>
 
             <div>
-              <label
-                htmlFor={`phone-${row.id}`}
-                className="mb-1 block text-sm text-white/70"
-              >
+              <label htmlFor={`phone-${row.id}`} className="mb-1 block text-sm text-white/70">
                 Phone
               </label>
               <input
@@ -160,10 +146,7 @@ export default function EditEmployeeDialog({ row }: { row: PeopleRow }) {
             </div>
 
             <div>
-              <label
-                htmlFor={`role-${row.id}`}
-                className="mb-1 block text-sm text-white/70"
-              >
+              <label htmlFor={`role-${row.id}`} className="mb-1 block text-sm text-white/70">
                 Role
               </label>
               <input
@@ -176,9 +159,7 @@ export default function EditEmployeeDialog({ row }: { row: PeopleRow }) {
             </div>
           </div>
 
-          {state?.message ? (
-            <p className="mt-4 text-sm text-red-400">{state.message}</p>
-          ) : null}
+          {state?.message ? <p className="mt-4 text-sm text-red-400">{state.message}</p> : null}
 
           <div className="mt-6 flex justify-end gap-3">
             <button
@@ -201,4 +182,3 @@ export default function EditEmployeeDialog({ row }: { row: PeopleRow }) {
     </>
   );
 }
-

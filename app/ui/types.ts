@@ -1,13 +1,13 @@
-import { LucideIcon } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-export interface NavItem {
-    label: string;
-    href: string;
-    icon: LucideIcon;
-  }
-  
-  export interface StatCardProps {
-    title: string;
-    value: string | number;
-    icon: LucideIcon;
-  }
+export type NavItem = {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+};
+
+export type StatCardProps = {
+  title: string;
+  value: string | number;
+  icon: LucideIcon;
+};

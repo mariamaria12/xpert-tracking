@@ -1,15 +1,16 @@
 import { cookies } from "next/headers";
 
-import type { Database } from "@/lib/types/database";
 import { createClient } from "@/lib/supabase/server";
 
 import { parseDueDate, parseEstimatedHours } from "./projects.schema";
+
 import type {
   ProjectCreateInput,
   ProjectRow,
   ProjectRowsResult,
   ProjectUpdateInput,
 } from "./projects.types";
+import type { Database } from "@/lib/types/database";
 
 type ProjectTimeLogEmbed = Pick<
   Database["public"]["Tables"]["time_logs"]["Row"],
@@ -18,20 +19,16 @@ type ProjectTimeLogEmbed = Pick<
 
 type ProjectDbRow = Pick<
   Database["public"]["Tables"]["projects"]["Row"],
-  | "id"
-  | "name"
-  | "client_id"
-  | "status"
-  | "estimated_hours"
-  | "due_date"
-  | "description"
+  "id" | "name" | "client_id" | "status" | "estimated_hours" | "due_date" | "description"
 > & {
   client?: { company_name: string | null } | { company_name: string | null }[] | null;
   time_logs?: ProjectTimeLogEmbed[] | null;
 };
 
 function pickCompanyName(value: ProjectDbRow["client"]) {
-  if (!value) return "—";
+  if (!value) {
+    return "—";
+  }
   const item = Array.isArray(value) ? value[0] : value;
   return item?.company_name?.trim() || "—";
 }
@@ -72,7 +69,7 @@ export async function getProjectRows(): Promise<ProjectRowsResult> {
       description,
       client:clients(company_name),
       time_logs(duration_minutes, employee_id)
-    `,
+    `
     )
     .order("name", { ascending: true });
 
@@ -108,7 +105,10 @@ export async function createProjectRecord({
 }: {
   input: ProjectCreateInput;
   createdBy?: string | null;
-}): Promise<{ error?: string; validationErrors?: { estimatedHours?: string[]; dueDate?: string[] } }> {
+}): Promise<{
+  error?: string;
+  validationErrors?: { estimatedHours?: string[]; dueDate?: string[] };
+}> {
   const estimated = parseEstimatedHours(input.estimatedHours);
   const due = parseDueDate(input.dueDate);
 
@@ -156,11 +156,10 @@ export async function createProjectRecord({
   return {};
 }
 
-export async function updateProjectRecord({
-  input,
-}: {
-  input: ProjectUpdateInput;
-}): Promise<{ error?: string; validationErrors?: { estimatedHours?: string[]; dueDate?: string[] } }> {
+export async function updateProjectRecord({ input }: { input: ProjectUpdateInput }): Promise<{
+  error?: string;
+  validationErrors?: { estimatedHours?: string[]; dueDate?: string[] };
+}> {
   const estimated = parseEstimatedHours(input.estimatedHours);
   const due = parseDueDate(input.dueDate);
 
@@ -193,4 +192,3 @@ export async function updateProjectRecord({
 
   return {};
 }
-

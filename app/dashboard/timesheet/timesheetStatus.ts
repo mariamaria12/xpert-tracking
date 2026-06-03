@@ -36,7 +36,7 @@ function endOfWorkDay(date: Date) {
 export function getTimesheetStatus(
   startedAt: Date,
   endedAt: Date | null,
-  referenceDate: Date = new Date(),
+  referenceDate: Date = new Date()
 ): TimesheetStatus {
   if (!endedAt) {
     return "InProgress";
@@ -58,13 +58,17 @@ export function getTimesheetStatus(
 export function getTimesheetStatusDisplay(
   startedAtIso: string,
   endedAtIso: string | null,
-  referenceDate: Date = new Date(),
+  referenceDate: Date = new Date()
 ): TimesheetStatusDisplay | null {
   const startedAt = new Date(startedAtIso);
-  if (Number.isNaN(startedAt.getTime())) return null;
+  if (Number.isNaN(startedAt.getTime())) {
+    return null;
+  }
 
   const endedAt = endedAtIso ? new Date(endedAtIso) : null;
-  if (endedAt && Number.isNaN(endedAt.getTime())) return null;
+  if (endedAt && Number.isNaN(endedAt.getTime())) {
+    return null;
+  }
 
   const status = getTimesheetStatus(startedAt, endedAt, referenceDate);
 

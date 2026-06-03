@@ -14,16 +14,13 @@ import {
 } from "recharts";
 
 import { formatDate } from "@/lib/utils";
-import type { ProjectsAnalyticsData } from "@/lib/services/home/projectsAnalytics.types";
 
-import ProjectStatusBadge from "../projects/ProjectStatusBadge";
 import AnalyticsCard from "./AnalyticsCard";
 import AnalyticsEmpty from "./AnalyticsEmpty";
-import {
-  chartAxisStyle,
-  chartGridStroke,
-  chartTooltipStyle,
-} from "./chartTheme";
+import { chartAxisStyle, chartGridStroke, chartTooltipStyle } from "./chartTheme";
+import ProjectStatusBadge from "../projects/ProjectStatusBadge";
+
+import type { ProjectsAnalyticsData } from "@/lib/services/home/projectsAnalytics.types";
 
 function formatHours(value: number) {
   return new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(value);
@@ -38,7 +35,9 @@ function ChartTooltip({
   payload?: { name?: string; value?: number; color?: string }[];
   label?: string;
 }) {
-  if (!active || !payload?.length) return null;
+  if (!active || !payload?.length) {
+    return null;
+  }
 
   return (
     <div
@@ -132,7 +131,10 @@ export default function ProjectsAnalyticsCharts({ data }: { data: ProjectsAnalyt
           ) : (
             <div className="h-[280px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data.estimatedHoursByStatus} margin={{ top: 8, right: 8, left: 0, bottom: 48 }}>
+                <BarChart
+                  data={data.estimatedHoursByStatus}
+                  margin={{ top: 8, right: 8, left: 0, bottom: 48 }}
+                >
                   <CartesianGrid stroke={chartGridStroke} vertical={false} />
                   <XAxis
                     dataKey="label"
@@ -177,7 +179,9 @@ export default function ProjectsAnalyticsCharts({ data }: { data: ProjectsAnalyt
             <AnalyticsEmpty message="No overdue projects — schedule is on track." />
           ) : (
             <>
-              <p className="mb-4 text-3xl font-bold tabular-nums text-red-300">{data.overdue.count}</p>
+              <p className="mb-4 text-3xl font-bold tabular-nums text-red-300">
+                {data.overdue.count}
+              </p>
               <ul className="max-h-64 space-y-3 overflow-y-auto pr-1">
                 {data.overdue.projects.map((project) => (
                   <li
@@ -227,7 +231,9 @@ export default function ProjectsAnalyticsCharts({ data }: { data: ProjectsAnalyt
                   />
                   <Tooltip
                     content={({ active, payload }) => {
-                      if (!active || !payload?.length) return null;
+                      if (!active || !payload?.length) {
+                        return null;
+                      }
                       const row = payload[0]?.payload as {
                         companyName: string;
                         projectCount: number;
@@ -237,17 +243,25 @@ export default function ProjectsAnalyticsCharts({ data }: { data: ProjectsAnalyt
                         <div className="rounded-xl border border-white/10 bg-[#111827] px-3 py-2 text-sm shadow-lg">
                           <p className="font-medium text-white">{row.companyName}</p>
                           <p className="text-white/70">{row.projectCount} projects</p>
-                          <p className="text-cyan-400">{formatHours(row.totalEstimatedHours)} h estimated</p>
+                          <p className="text-cyan-400">
+                            {formatHours(row.totalEstimatedHours)} h estimated
+                          </p>
                         </div>
                       );
                     }}
                   />
-                  <Bar dataKey="totalEstimatedHours" name="Est. hours" fill="#38bdf8" radius={[0, 6, 6, 0]} maxBarSize={22} />
+                  <Bar
+                    dataKey="totalEstimatedHours"
+                    name="Est. hours"
+                    fill="#38bdf8"
+                    radius={[0, 6, 6, 0]}
+                    maxBarSize={22}
+                  />
                 </BarChart>
               </ResponsiveContainer>
               <p className="mt-3 text-xs text-white/40">
-                Showing top {Math.min(10, data.clientWorkload.length)} clients by estimated hours. Project
-                counts:{" "}
+                Showing top {Math.min(10, data.clientWorkload.length)} clients by estimated hours.
+                Project counts:{" "}
                 {data.clientWorkload
                   .slice(0, 10)
                   .map((c) => `${c.companyName} (${c.projectCount})`)

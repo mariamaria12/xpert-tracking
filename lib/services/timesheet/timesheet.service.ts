@@ -1,13 +1,12 @@
 import { cookies } from "next/headers";
 
-import type { Database } from "@/lib/types/database";
+import { formatHoursMinutes } from "@/dashboard/people/formatDuration";
+import { getTimesheetStatusDisplay } from "@/dashboard/timesheet/timesheetStatus";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/utils";
 
-import { formatHoursMinutes } from "@/dashboard/people/formatDuration";
-import { getTimesheetStatusDisplay } from "@/dashboard/timesheet/timesheetStatus";
-
 import { computeDurationMinutes, parseDateTimeLocal } from "./timesheet.schema";
+
 import type {
   EmployeeOption,
   ProjectOption,
@@ -16,6 +15,7 @@ import type {
   TimesheetRowsResult,
   TimesheetUpdateInput,
 } from "./timesheet.types";
+import type { Database } from "@/lib/types/database";
 
 type NestedName =
   | { first_name?: string | null; last_name?: string | null; name?: string | null }
@@ -44,11 +44,15 @@ function toNullIfEmpty(value: string | undefined) {
 
 function pickNested<T extends Record<string, unknown>>(
   value: NestedName,
-  format: (item: T) => string,
+  format: (item: T) => string
 ): string {
-  if (!value) return "—";
+  if (!value) {
+    return "—";
+  }
   const item = (Array.isArray(value) ? value[0] : value) as T | undefined;
-  if (!item) return "—";
+  if (!item) {
+    return "—";
+  }
   return format(item);
 }
 
@@ -82,7 +86,7 @@ export async function getTimesheetRows(): Promise<TimesheetRowsResult> {
       notes,
       employee:employees(first_name, last_name),
       project:projects(name)
-    `,
+    `
     )
     .order("started_at", { ascending: false });
 
@@ -95,11 +99,14 @@ export async function getTimesheetRows(): Promise<TimesheetRowsResult> {
     const startedAt = new Date(log.started_at);
     const endedAt = log.ended_at ? new Date(log.ended_at) : null;
 
-    const statusDisplay =
-      getTimesheetStatusDisplay(log.started_at, log.ended_at, referenceDate) ?? {
-        status: "InProgress" as const,
-        label: "In progress",
-      };
+    const statusDisplay = getTimesheetStatusDisplay(
+      log.started_at,
+      log.ended_at,
+      referenceDate
+    ) ?? {
+      status: "InProgress" as const,
+      label: "In progress",
+    };
 
     let durationMinutes: number | null =
       log.duration_minutes === null || log.duration_minutes === undefined
@@ -116,7 +123,7 @@ export async function getTimesheetRows(): Promise<TimesheetRowsResult> {
       if (!Number.isNaN(startedAt.getTime())) {
         durationMinutes = Math.max(
           0,
-          Math.round((referenceDate.getTime() - startedAt.getTime()) / 60000),
+          Math.round((referenceDate.getTime() - startedAt.getTime()) / 60000)
         );
       }
     }
@@ -185,19 +192,23 @@ export async function getTimesheetPickerOptions(): Promise<{
   ]);
 
   const employeeOptions =
-    ((employees ?? []) as Pick<
-      Database["public"]["Tables"]["employees"]["Row"],
-      "id" | "first_name" | "last_name"
-    >[]).map((e) => ({
+    (
+      (employees ?? []) as Pick<
+        Database["public"]["Tables"]["employees"]["Row"],
+        "id" | "first_name" | "last_name"
+      >[]
+    ).map((e) => ({
       id: String(e.id),
       label: `${e.first_name ?? ""} ${e.last_name ?? ""}`.trim() || "—",
     })) ?? [];
 
   const projectOptionsRaw =
-    ((projects ?? []) as Pick<
-      Database["public"]["Tables"]["projects"]["Row"],
-      "id" | "name" | "status"
-    >[]).map((p) => ({
+    (
+      (projects ?? []) as Pick<
+        Database["public"]["Tables"]["projects"]["Row"],
+        "id" | "name" | "status"
+      >[]
+    ).map((p) => ({
       id: String(p.id),
       label: String(p.name ?? "—"),
       status: p.status ? String(p.status) : null,
@@ -206,7 +217,9 @@ export async function getTimesheetPickerOptions(): Promise<{
   const projectOptions = [...projectOptionsRaw].sort((a, b) => {
     const aCompleted = (a.status ?? "").toLowerCase() === "completed";
     const bCompleted = (b.status ?? "").toLowerCase() === "completed";
-    if (aCompleted !== bCompleted) return aCompleted ? 1 : -1;
+    if (aCompleted !== bCompleted) {
+      return aCompleted ? 1 : -1;
+    }
     return a.label.localeCompare(b.label);
   });
 
@@ -310,4 +323,3 @@ export async function updateTimesheetRecord({
 
   return {};
 }
-

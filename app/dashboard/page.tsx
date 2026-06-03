@@ -1,6 +1,8 @@
+import { Clock, FolderKanban, Users, Building2 } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
-import { Clock, FolderKanban, Users, Building2 } from "lucide-react";
+
+import { getHomeStatCardsData } from "@/lib/services/home/home.service";
 import StatCard from "@/ui/dashboard/StatCard";
 
 import ActiveClientsSection from "./ActiveClientsSection";
@@ -11,7 +13,6 @@ import {
   ActiveProjectsPanelSkeleton,
   ProjectsAnalyticsSkeleton,
 } from "./skeletons";
-import { getHomeStatCardsData } from "@/lib/services/home/home.service";
 
 function formatHours(hours: number) {
   return new Intl.NumberFormat("en-US", {
@@ -24,17 +25,13 @@ export default async function DashboardHomePage() {
   const { teamMembersCount, hoursLogged, activeProjectsCount, activeClientsCount } =
     await getHomeStatCardsData();
 
-  const activeProjectsValue =
-    activeProjectsCount === null ? "—" : activeProjectsCount;
+  const activeProjectsValue = activeProjectsCount === null ? "—" : activeProjectsCount;
 
-  const teamMembersValue =
-    teamMembersCount === null ? "—" : teamMembersCount;
+  const teamMembersValue = teamMembersCount === null ? "—" : teamMembersCount;
 
-  const hoursLoggedValue =
-    hoursLogged === null ? "—" : formatHours(hoursLogged);
+  const hoursLoggedValue = hoursLogged === null ? "—" : formatHours(hoursLogged);
 
-  const activeClientsValue =
-    activeClientsCount === null ? "—" : activeClientsCount;
+  const activeClientsValue = activeClientsCount === null ? "—" : activeClientsCount;
 
   return (
     <div>

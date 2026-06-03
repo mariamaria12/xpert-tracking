@@ -1,21 +1,20 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+
+import { requireUserId } from "@/lib/auth/supabaseAuth";
 import {
   getEmployeeFieldErrors,
   readEmployeeCreateInput,
   readEmployeeUpdateInput,
 } from "@/lib/services/people/people.schema";
-import {
-  createEmployeeRecord,
-  updateEmployeeRecord,
-} from "@/lib/services/people/people.service";
+import { createEmployeeRecord, updateEmployeeRecord } from "@/lib/services/people/people.service";
+
 import type { EmployeeFormState } from "@/lib/services/people/people.types";
-import { requireUserId } from "@/lib/auth/supabaseAuth";
 
 export async function createEmployee(
   _prevState: EmployeeFormState,
-  formData: FormData,
+  formData: FormData
 ): Promise<EmployeeFormState> {
   const parsed = readEmployeeCreateInput(formData);
 
@@ -39,7 +38,7 @@ export async function createEmployee(
 
 export async function updateEmployee(
   _prevState: EmployeeFormState,
-  formData: FormData,
+  formData: FormData
 ): Promise<EmployeeFormState> {
   const parsed = readEmployeeUpdateInput(formData);
 

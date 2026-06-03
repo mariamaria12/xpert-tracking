@@ -1,11 +1,16 @@
 import React from "react";
 
 import { cn } from "@/lib/utils";
-import type { DataTableColumn } from "@/ui/table/DataTable";
+
+import EditTimesheetDialog from "./EditTimesheetDialog";
 
 import type { TimesheetStatusDisplay } from "./timesheetStatus";
-import EditTimesheetDialog from "./EditTimesheetDialog";
-import type { EmployeeOption, ProjectOption, TimesheetRow } from "@/lib/services/timesheet/timesheet.types";
+import type {
+  EmployeeOption,
+  ProjectOption,
+  TimesheetRow,
+} from "@/lib/services/timesheet/timesheet.types";
+import type { DataTableColumn } from "@/ui/table/DataTable";
 
 function StatusBadge({ display }: { display: TimesheetStatusDisplay }) {
   const styles =
@@ -16,12 +21,7 @@ function StatusBadge({ display }: { display: TimesheetStatusDisplay }) {
         : "bg-emerald-400/10 text-emerald-400";
 
   return (
-    <span
-      className={cn(
-        "inline-flex rounded-full px-2.5 py-1 text-xs font-medium",
-        styles,
-      )}
-    >
+    <span className={cn("inline-flex rounded-full px-2.5 py-1 text-xs font-medium", styles)}>
       {display.label}
     </span>
   );
@@ -38,9 +38,7 @@ export function getTimesheetColumns({
     {
       id: "employee",
       header: "Employee",
-      cell: (row) => (
-        <span className="font-medium text-white/80">{row.employeeName}</span>
-      ),
+      cell: (row) => <span className="font-medium text-white/80">{row.employeeName}</span>,
     },
     {
       id: "project",
@@ -67,9 +65,7 @@ export function getTimesheetColumns({
       id: "activity",
       header: "Activity",
       visibleByDefault: false,
-      cell: (row) => (
-        <span className="text-white/80">{row.activity ?? "—"}</span>
-      ),
+      cell: (row) => <span className="text-white/80">{row.activity ?? "—"}</span>,
     },
     {
       id: "startedAt",
@@ -87,17 +83,13 @@ export function getTimesheetColumns({
       id: "notes",
       header: "Notes",
       visibleByDefault: false,
-      cell: (row) => (
-        <span className="text-white/80">{row.notes?.trim() ? row.notes : "—"}</span>
-      ),
+      cell: (row) => <span className="text-white/80">{row.notes?.trim() ? row.notes : "—"}</span>,
     },
     {
       id: "actions",
       header: "Actions",
       align: "right",
-      cell: (row) => (
-        <EditTimesheetDialog row={row} employees={employees} projects={projects} />
-      ),
+      cell: (row) => <EditTimesheetDialog row={row} employees={employees} projects={projects} />,
     },
   ];
 }

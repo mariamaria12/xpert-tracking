@@ -3,26 +3,31 @@
 import { Pencil } from "lucide-react";
 import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 
+import { updateTimesheet } from "./actions";
+import SelectPicker from "./SelectPicker";
+
 import type {
   EmployeeOption,
   ProjectOption,
   TimesheetFormState,
   TimesheetRow,
 } from "@/lib/services/timesheet/timesheet.types";
-import { updateTimesheet } from "./actions";
-import SelectPicker from "./SelectPicker";
 
 const inputClassName =
   "w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-400";
 
 function FieldError({ messages }: { messages?: string[] }) {
-  if (!messages?.length) return null;
+  if (!messages?.length) {
+    return null;
+  }
   return <p className="mt-1 text-sm text-red-400">{messages[0]}</p>;
 }
 
 function isoToDateTimeLocal(value: string) {
   const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return "";
+  if (Number.isNaN(d.getTime())) {
+    return "";
+  }
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
@@ -48,7 +53,7 @@ export default function EditTimesheetDialog({
       activity: row.activity ?? "",
       notes: row.notes ?? "",
     }),
-    [row],
+    [row]
   );
 
   const [projectId, setProjectId] = useState(initialValues.projectId);
@@ -56,7 +61,7 @@ export default function EditTimesheetDialog({
 
   const [state, formAction, isPending] = useActionState<TimesheetFormState, FormData>(
     updateTimesheet,
-    undefined,
+    undefined
   );
 
   useEffect(() => {
@@ -115,7 +120,10 @@ export default function EditTimesheetDialog({
           <div className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label htmlFor={`employeeId-${row.id}`} className="mb-1 block text-sm text-white/70">
+                <label
+                  htmlFor={`employeeId-${row.id}`}
+                  className="mb-1 block text-sm text-white/70"
+                >
                   Employee
                 </label>
                 <SelectPicker
@@ -129,7 +137,10 @@ export default function EditTimesheetDialog({
               </div>
 
               <div>
-                <label htmlFor={`projectPicker-${row.id}`} className="mb-1 block text-sm text-white/70">
+                <label
+                  htmlFor={`projectPicker-${row.id}`}
+                  className="mb-1 block text-sm text-white/70"
+                >
                   Project
                 </label>
                 <SelectPicker
@@ -211,9 +222,7 @@ export default function EditTimesheetDialog({
             </div>
           </div>
 
-          {state?.message ? (
-            <p className="mt-4 text-sm text-red-400">{state.message}</p>
-          ) : null}
+          {state?.message ? <p className="mt-4 text-sm text-red-400">{state.message}</p> : null}
 
           <div className="mt-6 flex justify-end gap-3">
             <button
@@ -236,4 +245,3 @@ export default function EditTimesheetDialog({
     </>
   );
 }
-

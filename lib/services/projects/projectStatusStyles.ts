@@ -33,9 +33,15 @@ const productionStyle: ProjectStatusStyle = {
 export function getProjectStatusStyle(status: string): ProjectStatusStyle {
   const normalized = status.trim().toLowerCase();
 
-  if (normalized === "completed") return completedStyle;
-  if (normalized === "cancelled") return cancelledStyle;
-  if (normalized === "on_hold") return onHoldStyle;
+  if (normalized === "completed") {
+    return completedStyle;
+  }
+  if (normalized === "cancelled") {
+    return cancelledStyle;
+  }
+  if (normalized === "on_hold") {
+    return onHoldStyle;
+  }
   if (normalized === "draft" || normalized === "quoted" || normalized === "approved") {
     return preProductionStyle;
   }

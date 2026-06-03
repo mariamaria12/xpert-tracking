@@ -1,13 +1,11 @@
 import { cookies } from "next/headers";
 
-import { createClient } from "@/lib/supabase/server";
-import type { Database } from "@/lib/types/database";
-
 import {
   getProjectStatusChartColor,
   getProjectStatusLabel,
   getProjectStatusStyle,
 } from "@/lib/services/projects/projectStatusStyles";
+import { createClient } from "@/lib/supabase/server";
 
 import type {
   ClientWorkloadItem,
@@ -16,6 +14,7 @@ import type {
   ProjectsAnalyticsData,
   ProjectsByStatusItem,
 } from "./projectsAnalytics.types";
+import type { Database } from "@/lib/types/database";
 
 type ProjectAnalyticsDbRow = Pick<
   Database["public"]["Tables"]["projects"]["Row"],
@@ -25,7 +24,9 @@ type ProjectAnalyticsDbRow = Pick<
 };
 
 function pickCompanyName(value: ProjectAnalyticsDbRow["client"]) {
-  if (!value) return "—";
+  if (!value) {
+    return "—";
+  }
   const item = Array.isArray(value) ? value[0] : value;
   return item?.company_name?.trim() || "—";
 }
@@ -123,7 +124,7 @@ export async function getProjectsAnalyticsData(): Promise<ProjectsAnalyticsData>
     .sort((a, b) => b.hours - a.hours);
 
   const clientWorkload = Array.from(workloadByClient.values()).sort(
-    (a, b) => b.totalEstimatedHours - a.totalEstimatedHours || b.projectCount - a.projectCount,
+    (a, b) => b.totalEstimatedHours - a.totalEstimatedHours || b.projectCount - a.projectCount
   );
 
   overdueProjects.sort((a, b) => a.dueDateIso.localeCompare(b.dueDateIso));

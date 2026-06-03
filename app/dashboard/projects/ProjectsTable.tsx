@@ -4,9 +4,10 @@ import { FolderKanban } from "lucide-react";
 
 import DataTable from "@/ui/table/DataTable";
 
-import type { ProjectRow } from "@/lib/services/projects/projects.types";
 import { getProjectColumns } from "./columns";
+
 import type { ClientOption } from "./AddProjectDialog";
+import type { ProjectRow } from "@/lib/services/projects/projects.types";
 
 type ProjectsTableProps = {
   rows: ProjectRow[];
@@ -38,4 +39,3 @@ export default function ProjectsTable({ rows, error, clients }: ProjectsTablePro
     />
   );
 }
-

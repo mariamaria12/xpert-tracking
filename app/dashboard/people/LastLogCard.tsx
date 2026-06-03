@@ -3,10 +3,8 @@ import { cn } from "@/lib/utils";
 import type { LastLogDisplay } from "./lastLogDisplay";
 
 const statusStyles = {
-  green:
-    "border-emerald-500/50 bg-emerald-500/10 text-emerald-300 [&_.time]:text-emerald-200/90",
-  yellow:
-    "border-amber-500/50 bg-amber-500/10 text-amber-300 [&_.time]:text-amber-200/90",
+  green: "border-emerald-500/50 bg-emerald-500/10 text-emerald-300 [&_.time]:text-emerald-200/90",
+  yellow: "border-amber-500/50 bg-amber-500/10 text-amber-300 [&_.time]:text-amber-200/90",
   red: "border-red-500/50 bg-red-500/10 text-red-300 [&_.time]:text-red-200/90",
 } as const;
 
@@ -19,7 +17,7 @@ export default function LastLogCard({ display }: { display: LastLogDisplay | nul
     <span
       className={cn(
         "inline-flex min-w-[4.75rem] flex-col items-center rounded-2xl border px-3 py-1 text-center leading-tight",
-        statusStyles[display.status],
+        statusStyles[display.status]
       )}
       title={display.title}
     >

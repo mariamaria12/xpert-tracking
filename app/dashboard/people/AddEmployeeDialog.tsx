@@ -3,24 +3,27 @@
 import { Plus } from "lucide-react";
 import { useActionState, useEffect, useRef } from "react";
 
-import type { EmployeeFormState } from "@/lib/services/people/people.types";
 import { createEmployee } from "./actions";
+
+import type { EmployeeFormState } from "@/lib/services/people/people.types";
 
 const inputClassName =
   "w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-400";
 
 function FieldError({ messages }: { messages?: string[] }) {
-  if (!messages?.length) return null;
+  if (!messages?.length) {
+    return null;
+  }
   return <p className="mt-1 text-sm text-red-400">{messages[0]}</p>;
 }
 
 export default function AddEmployeeDialog() {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
-  const [state, formAction, isPending] = useActionState<
-    EmployeeFormState,
-    FormData
-  >(createEmployee, undefined);
+  const [state, formAction, isPending] = useActionState<EmployeeFormState, FormData>(
+    createEmployee,
+    undefined
+  );
 
   useEffect(() => {
     if (state?.success) {
@@ -39,7 +42,11 @@ export default function AddEmployeeDialog() {
 
   return (
     <>
-      <button type="button" className="btn-accent inline-flex items-center gap-2" onClick={openDialog}>
+      <button
+        type="button"
+        className="btn-accent inline-flex items-center gap-2"
+        onClick={openDialog}
+      >
         <Plus className="h-4 w-4" aria-hidden />
         Add people
       </button>
@@ -53,9 +60,7 @@ export default function AddEmployeeDialog() {
           <div className="mb-6 flex items-start justify-between gap-4">
             <div>
               <h2 className="text-lg font-semibold text-white">Add employee</h2>
-              <p className="mt-1 text-sm text-white/50">
-                Add a team member to your organization.
-              </p>
+              <p className="mt-1 text-sm text-white/50">Add a team member to your organization.</p>
             </div>
             <button
               type="button"
@@ -133,19 +138,12 @@ export default function AddEmployeeDialog() {
               <label htmlFor="role" className="mb-1 block text-sm text-white/70">
                 Role
               </label>
-              <input
-                id="role"
-                name="role"
-                className={inputClassName}
-                placeholder="Welder"
-              />
+              <input id="role" name="role" className={inputClassName} placeholder="Welder" />
               <FieldError messages={state?.errors?.role} />
             </div>
           </div>
 
-          {state?.message ? (
-            <p className="mt-4 text-sm text-red-400">{state.message}</p>
-          ) : null}
+          {state?.message ? <p className="mt-4 text-sm text-red-400">{state.message}</p> : null}
 
           <div className="mt-6 flex justify-end gap-3">
             <button

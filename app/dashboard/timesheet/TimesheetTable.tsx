@@ -4,12 +4,13 @@ import { Clock } from "lucide-react";
 
 import DataTable from "@/ui/table/DataTable";
 
+import { getTimesheetColumns } from "./columns";
+
 import type {
   EmployeeOption,
   ProjectOption,
   TimesheetRow,
 } from "@/lib/services/timesheet/timesheet.types";
-import { getTimesheetColumns } from "./columns";
 
 type TimesheetTableProps = {
   rows: TimesheetRow[];
@@ -18,12 +19,7 @@ type TimesheetTableProps = {
   projects: ProjectOption[];
 };
 
-export default function TimesheetTable({
-  rows,
-  error,
-  employees,
-  projects,
-}: TimesheetTableProps) {
+export default function TimesheetTable({ rows, error, employees, projects }: TimesheetTableProps) {
   const emptyState = error
     ? {
         title: "Could not load timesheets",
