@@ -83,10 +83,7 @@ const ACTIONS_COLUMN_CELL_CLASS = cn(
   ACTIONS_COLUMN_WIDTH_CLASS,
   "whitespace-nowrap px-2 py-4 text-right"
 );
-const ACTIONS_COLUMN_HEADER_CLASS = cn(
-  ACTIONS_COLUMN_WIDTH_CLASS,
-  "whitespace-nowrap px-2 py-4"
-);
+const ACTIONS_COLUMN_HEADER_CLASS = cn(ACTIONS_COLUMN_WIDTH_CLASS, "whitespace-nowrap px-2 py-4");
 
 function isActionsColumn(columnId: string) {
   return columnId === ACTIONS_COLUMN_ID;

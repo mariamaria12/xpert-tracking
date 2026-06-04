@@ -58,10 +58,8 @@ export async function getProjectRows(): Promise<ProjectRowsResult> {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
-  const { data: projects, error } = await supabase
-    .from("projects")
-    .select(
-      `
+  const { data: projects, error } = await supabase.from("projects").select(
+    `
       id,
       name,
       client_id,
@@ -72,7 +70,7 @@ export async function getProjectRows(): Promise<ProjectRowsResult> {
       client:clients(company_name),
       time_logs(duration_minutes, employee_id)
     `
-    );
+  );
 
   if (error) {
     console.error("Failed to load projects:", error);
