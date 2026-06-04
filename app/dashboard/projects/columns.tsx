@@ -5,7 +5,7 @@ import { cn, formatDate } from "@/lib/utils";
 import EditProjectDialog from "./EditProjectDialog";
 import ProjectStatusBadge from "./ProjectStatusBadge";
 
-import type { ClientOption , ProjectRow } from "@/lib/services/projects/projects.types";
+import type { ClientOption, ProjectRow } from "@/lib/services/projects/projects.types";
 import type { DataTableColumn } from "@/ui/table/DataTable";
 
 function formatHours(value: number | null) {

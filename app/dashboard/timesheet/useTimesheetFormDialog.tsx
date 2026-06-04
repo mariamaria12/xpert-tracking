@@ -10,40 +10,45 @@ import {
   type ReactNode,
 } from "react";
 
-import { projectStatusOptions } from "@/lib/services/projects/projectStatuses";
 import { formDialogClassName } from "@/ui/forms/formClasses";
 
-import ProjectFormFields, { type ProjectFormValues } from "./ProjectFormFields";
-import { initialProjectStatus, projectStatusOptionsForRow } from "./projectFormUtils";
+import TimesheetFormFields, { type TimesheetFormValues } from "./TimesheetFormFields";
+import { nowDateTimeLocal } from "./timesheetFormUtils";
 
-import type { ClientOption, ProjectFormState } from "@/lib/services/projects/projects.types";
+import type {
+  EmployeeOption,
+  ProjectOption,
+  TimesheetFormState,
+} from "@/lib/services/timesheet/timesheet.types";
 
-type UseProjectFormDialogOptions = {
+type UseTimesheetFormDialogOptions = {
   title: string;
   description: string;
   submitLabel: string;
-  clients: ClientOption[];
-  action: (prevState: ProjectFormState, formData: FormData) => Promise<ProjectFormState>;
+  employees: EmployeeOption[];
+  projects: ProjectOption[];
+  action: (prevState: TimesheetFormState, formData: FormData) => Promise<TimesheetFormState>;
   idPrefix?: string;
-  values?: ProjectFormValues;
+  values?: TimesheetFormValues;
   extraHiddenFields?: ReactNode;
   resetOnClose?: boolean;
   resetOnSuccess?: boolean;
   prepareFormOnOpen?: boolean;
 };
 
-export type UseProjectFormDialogResult = {
+export type UseTimesheetFormDialogResult = {
   openDialog: () => void;
   closeDialog: () => void;
   dialog: ReactNode;
   isPending: boolean;
 };
 
-export function useProjectFormDialog({
+export function useTimesheetFormDialog({
   title,
   description,
   submitLabel,
-  clients,
+  employees,
+  projects,
   action,
   idPrefix,
   values,
@@ -51,22 +56,18 @@ export function useProjectFormDialog({
   resetOnClose = false,
   resetOnSuccess = false,
   prepareFormOnOpen = false,
-}: UseProjectFormDialogOptions): UseProjectFormDialogResult {
+}: UseTimesheetFormDialogOptions): UseTimesheetFormDialogResult {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
-  const defaultClientId = values?.clientId ?? clients[0]?.id ?? "";
-  const defaultStatus = values ? initialProjectStatus(values.status) : "draft";
+  const defaultProjectId = values?.projectId ?? projects[0]?.id ?? "";
+  const defaultEmployeeId = values?.employeeId ?? employees[0]?.id ?? "";
+  const defaultStartedAt = useMemo(() => (values ? undefined : nowDateTimeLocal()), [values]);
 
-  const statusOptions = useMemo(
-    () => (values ? projectStatusOptionsForRow(values.status) : projectStatusOptions),
-    [values]
-  );
+  const [projectId, setProjectId] = useState(defaultProjectId);
+  const [employeeId, setEmployeeId] = useState(defaultEmployeeId);
 
-  const [clientId, setClientId] = useState(defaultClientId);
-  const [status, setStatus] = useState(defaultStatus);
-
-  const [state, formAction, isPending] = useActionState<ProjectFormState, FormData>(
+  const [state, formAction, isPending] = useActionState<TimesheetFormState, FormData>(
     action,
     undefined
   );
@@ -81,9 +82,9 @@ export function useProjectFormDialog({
   }, [state?.success, resetOnSuccess]);
 
   const resetPickerState = useCallback(() => {
-    setClientId(defaultClientId);
-    setStatus(defaultStatus);
-  }, [defaultClientId, defaultStatus]);
+    setProjectId(defaultProjectId);
+    setEmployeeId(defaultEmployeeId);
+  }, [defaultProjectId, defaultEmployeeId]);
 
   const openDialog = useCallback(() => {
     if (prepareFormOnOpen) {
@@ -112,8 +113,8 @@ export function useProjectFormDialog({
     >
       <form ref={formRef} action={formAction} className="p-6">
         {extraHiddenFields}
-        <input type="hidden" name="clientId" value={clientId} />
-        <input type="hidden" name="status" value={status} />
+        <input type="hidden" name="projectId" value={projectId} />
+        <input type="hidden" name="employeeId" value={employeeId} />
 
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
@@ -130,16 +131,17 @@ export function useProjectFormDialog({
           </button>
         </div>
 
-        <ProjectFormFields
-          clients={clients}
-          statusOptions={statusOptions}
-          clientId={clientId}
-          onClientIdChange={setClientId}
-          status={status}
-          onStatusChange={setStatus}
+        <TimesheetFormFields
+          employees={employees}
+          projects={projects}
+          employeeId={employeeId}
+          onEmployeeIdChange={setEmployeeId}
+          projectId={projectId}
+          onProjectIdChange={setProjectId}
           idPrefix={idPrefix}
           errors={state?.errors}
           values={values}
+          defaultStartedAt={defaultStartedAt}
         />
 
         {state?.message ? <p className="mt-4 text-sm text-red-400">{state.message}</p> : null}

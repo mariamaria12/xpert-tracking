@@ -6,7 +6,7 @@ import { formInputClassName } from "@/ui/forms/formClasses";
 import SelectPicker from "../timesheet/SelectPicker";
 
 import type { SelectPickerOption } from "../timesheet/SelectPicker";
-import type { ClientOption , ProjectFormErrors } from "@/lib/services/projects/projects.types";
+import type { ClientOption, ProjectFormErrors } from "@/lib/services/projects/projects.types";
 
 export type ProjectFormValues = {
   name: string;
