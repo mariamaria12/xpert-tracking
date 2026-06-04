@@ -7,8 +7,7 @@ export default async function ClientsPage() {
 
   return (
     <div>
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Clients</h1>
+      <div className="mb-8 flex flex-wrap items-center justify-end gap-4">
         <AddClientDialog />
       </div>
       <ClientsTable rows={rows} error={error} />

@@ -13,8 +13,7 @@ export default async function TimesheetPage() {
 
   return (
     <div>
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Timesheet</h1>
+      <div className="mb-8 flex flex-wrap items-center justify-end gap-4">
         <AddTimesheetDialog employees={employeeOptions} projects={projectOptions} />
       </div>
       <TimesheetTable

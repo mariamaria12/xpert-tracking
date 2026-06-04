@@ -25,8 +25,7 @@ export default async function ProjectsPage() {
 
   return (
     <div>
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Projects</h1>
+      <div className="mb-8 flex flex-wrap items-center justify-end gap-4">
         <AddProjectDialog clients={clientOptions} />
       </div>
       <ProjectsTable rows={rows} error={error} clients={clientOptions} />

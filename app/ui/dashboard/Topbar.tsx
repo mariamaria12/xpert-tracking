@@ -10,6 +10,9 @@ function titleFromPath(pathname: string): string {
   if (pathname.startsWith("/dashboard/projects")) {
     return "Projects";
   }
+  if (pathname.startsWith("/dashboard/clients")) {
+    return "Clients";
+  }
   if (pathname.startsWith("/dashboard/people")) {
     return "People";
   }
