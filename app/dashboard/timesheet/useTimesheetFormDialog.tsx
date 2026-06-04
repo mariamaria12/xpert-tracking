@@ -79,7 +79,7 @@ export function useTimesheetFormDialog({
       }
       dialogRef.current?.close();
     }
-  }, [state?.success, resetOnSuccess]);
+  }, [state, resetOnSuccess]);
 
   const resetPickerState = useCallback(() => {
     setProjectId(defaultProjectId);

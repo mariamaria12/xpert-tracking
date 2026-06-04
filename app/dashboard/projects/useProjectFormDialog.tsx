@@ -78,7 +78,7 @@ export function useProjectFormDialog({
       }
       dialogRef.current?.close();
     }
-  }, [state?.success, resetOnSuccess]);
+  }, [state, resetOnSuccess]);
 
   const resetPickerState = useCallback(() => {
     setClientId(defaultClientId);

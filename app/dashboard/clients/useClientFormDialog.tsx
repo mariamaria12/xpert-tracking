@@ -56,7 +56,7 @@ export function useClientFormDialog({
       }
       dialogRef.current?.close();
     }
-  }, [state?.success, resetOnSuccess]);
+  }, [state, resetOnSuccess]);
 
   const openDialog = useCallback(() => {
     if (prepareFormOnOpen) {
