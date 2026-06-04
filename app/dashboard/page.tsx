@@ -2,6 +2,7 @@ import { Clock, FolderKanban, Users, Building2 } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { PROJECTS_ACTIVE_FILTER_HREF } from "@/dashboard/projects/projects.constants";
 import { getHomeStatCardsData } from "@/lib/services/home/home.service";
 import StatCard from "@/ui/dashboard/StatCard";
 
@@ -36,7 +37,7 @@ export default async function DashboardHomePage() {
   return (
     <div>
       <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <Link href="/dashboard/projects" prefetch={false} className="block">
+        <Link href={PROJECTS_ACTIVE_FILTER_HREF} prefetch={false} className="block">
           <StatCard title="Active Projects" value={activeProjectsValue} icon={FolderKanban} />
         </Link>
         <Link href="/dashboard/people" prefetch={false} className="block">

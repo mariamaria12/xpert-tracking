@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { PROJECTS_ACTIVE_FILTER_HREF } from "@/dashboard/projects/projects.constants";
 import { cn, formatDate } from "@/lib/utils";
 
 import ProjectStatusBadge from "./projects/ProjectStatusBadge";
@@ -74,7 +75,7 @@ export default function ActiveProjectsPanel({ projects }: { projects: ActiveProj
           <p className="mt-1 text-sm text-white/50">Overview of projects currently in progress</p>
         </div>
         <Link
-          href="/dashboard/projects"
+          href={PROJECTS_ACTIVE_FILTER_HREF}
           prefetch={false}
           className="text-sm text-cyan-400 transition hover:text-cyan-300"
         >
