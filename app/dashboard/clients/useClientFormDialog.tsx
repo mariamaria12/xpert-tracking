@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useCallback, useEffect, useRef } from "react";
+import { useActionState, useCallback, useEffect, useRef, type ReactNode } from "react";
 
 import { formDialogClassName } from "@/ui/forms/formClasses";
 
@@ -16,10 +16,17 @@ type UseClientFormDialogOptions = {
   action: (prevState: ClientFormState, formData: FormData) => Promise<ClientFormState>;
   idPrefix?: string;
   values?: ClientFormValues;
-  hiddenFields?: React.ReactNode;
+  hiddenFields?: ReactNode;
   resetOnClose?: boolean;
   resetOnSuccess?: boolean;
   prepareFormOnOpen?: boolean;
+};
+
+export type UseClientFormDialogResult = {
+  openDialog: () => void;
+  closeDialog: () => void;
+  dialog: ReactNode;
+  isPending: boolean;
 };
 
 export function useClientFormDialog({
@@ -33,7 +40,7 @@ export function useClientFormDialog({
   resetOnClose = false,
   resetOnSuccess = false,
   prepareFormOnOpen = false,
-}: UseClientFormDialogOptions) {
+}: UseClientFormDialogOptions): UseClientFormDialogResult {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
