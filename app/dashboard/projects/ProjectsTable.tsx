@@ -5,6 +5,7 @@ import { FolderKanban } from "lucide-react";
 import DataTable from "@/ui/table/DataTable";
 
 import { getProjectColumns } from "./columns";
+import { PROJECTS_TABLE_PAGE_SIZE } from "./projects.constants";
 
 import type { ClientOption, ProjectRow } from "@/lib/services/projects/projects.types";
 
@@ -35,6 +36,7 @@ export default function ProjectsTable({ rows, error, clients }: ProjectsTablePro
       data={rows}
       emptyState={emptyState}
       getRowId={(row) => row.id}
+      pageSize={PROJECTS_TABLE_PAGE_SIZE}
     />
   );
 }

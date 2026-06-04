@@ -1,0 +1,1 @@
+export const PROJECTS_TABLE_PAGE_SIZE = 12;

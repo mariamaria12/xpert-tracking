@@ -1,6 +1,6 @@
 "use client";
 
-import { Columns3 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Columns3 } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
@@ -25,7 +25,22 @@ export type DataTableProps<T> = {
   emptyState?: DataTableEmptyState;
   className?: string;
   getRowId?: (row: T, index: number) => string;
+  /** When set, paginates client-side. Pagination UI appears only if `data.length` exceeds this. */
+  pageSize?: number;
 };
+
+function formatResultsLabel(total: number, start: number, end: number, paginated: boolean) {
+  if (total === 0) {
+    return "0 results";
+  }
+  if (total === 1) {
+    return "1 result";
+  }
+  if (paginated) {
+    return `Showing ${start}–${end} of ${total} results`;
+  }
+  return `${total} results`;
+}
 
 export default function DataTable<T>({
   data,
@@ -33,6 +48,7 @@ export default function DataTable<T>({
   emptyState,
   className,
   getRowId,
+  pageSize,
 }: DataTableProps<T>) {
   const initialVisible = useMemo(() => {
     const visible = columns.filter((c) => c.visibleByDefault ?? true).map((c) => c.id);
@@ -47,7 +63,19 @@ export default function DataTable<T>({
 
   const [visibleColumnIds, setVisibleColumnIds] = useState<string[]>(initialVisible);
   const [columnsOpen, setColumnsOpen] = useState(false);
+  const [page, setPage] = useState(0);
   const columnsMenuRef = useRef<HTMLDivElement>(null);
+
+  const paginationEnabled = pageSize !== undefined && pageSize > 0 && data.length > pageSize;
+  const pageCount = paginationEnabled ? Math.ceil(data.length / pageSize) : 1;
+  const clampedPage = paginationEnabled ? Math.min(page, Math.max(0, pageCount - 1)) : 0;
+  const pageStart = paginationEnabled ? clampedPage * pageSize : 0;
+  const pageEnd = paginationEnabled ? Math.min(pageStart + pageSize, data.length) : data.length;
+  const tableData = paginationEnabled ? data.slice(pageStart, pageEnd) : data;
+
+  function goToPage(next: number) {
+    setPage(Math.max(0, Math.min(pageCount - 1, next)));
+  }
 
   useEffect(() => {
     if (!columnsOpen) {
@@ -133,10 +161,42 @@ export default function DataTable<T>({
     </div>
   ) : null;
 
+  const resultsLabel = formatResultsLabel(
+    data.length,
+    paginationEnabled ? pageStart + 1 : 1,
+    pageEnd,
+    paginationEnabled
+  );
+
   return (
     <div className={cn("space-y-4", className)}>
-      <div className="text-sm text-white/50">
-        {data.length === 1 ? "1 result" : `${data.length} results`}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="text-sm text-white/50">{resultsLabel}</div>
+        {paginationEnabled ? (
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => goToPage(clampedPage - 1)}
+              disabled={clampedPage === 0}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/70 transition hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Previous page"
+            >
+              <ChevronLeft className="h-4 w-4" aria-hidden />
+            </button>
+            <span className="min-w-[5.5rem] text-center text-sm text-white/60">
+              Page {clampedPage + 1} of {pageCount}
+            </span>
+            <button
+              type="button"
+              onClick={() => goToPage(clampedPage + 1)}
+              disabled={clampedPage >= pageCount - 1}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/70 transition hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Next page"
+            >
+              <ChevronRight className="h-4 w-4" aria-hidden />
+            </button>
+          </div>
+        ) : null}
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-white/10">
@@ -176,9 +236,9 @@ export default function DataTable<T>({
                 </td>
               </tr>
             ) : (
-              data.map((row, rowIndex) => (
+              tableData.map((row, rowIndex) => (
                 <tr
-                  key={getRowId ? getRowId(row, rowIndex) : rowIndex}
+                  key={getRowId ? getRowId(row, pageStart + rowIndex) : pageStart + rowIndex}
                   className="border-t border-white/10 text-white/20 transition hover:bg-white/5"
                 >
                   {visibleColumns.map((col) => (
