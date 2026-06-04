@@ -1,7 +1,6 @@
 import type { SelectPickerOption } from "./SelectPicker";
 import type { ProjectOption } from "@/lib/services/timesheet/timesheet.types";
 
-
 function pad2(n: number) {
   return String(n).padStart(2, "0");
 }
