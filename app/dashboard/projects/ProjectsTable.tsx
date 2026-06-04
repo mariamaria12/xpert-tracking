@@ -13,14 +13,14 @@ type ProjectsTableProps = {
   rows: ProjectRow[];
   error?: string;
   clients: ClientOption[];
-  isSearchActive?: boolean;
+  hasActiveFilters?: boolean;
 };
 
 export default function ProjectsTable({
   rows,
   error,
   clients,
-  isSearchActive = false,
+  hasActiveFilters = false,
 }: ProjectsTableProps) {
   const emptyState = error
     ? {
@@ -28,10 +28,10 @@ export default function ProjectsTable({
         description: error,
         icon: <FolderKanban className="h-6 w-6" aria-hidden />,
       }
-    : isSearchActive
+    : hasActiveFilters
       ? {
           title: "No matching projects",
-          description: "Try a different project name.",
+          description: "Try a different name or status filter.",
           icon: <FolderKanban className="h-6 w-6" aria-hidden />,
         }
       : {
