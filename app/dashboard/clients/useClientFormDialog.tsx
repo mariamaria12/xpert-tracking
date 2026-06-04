@@ -44,7 +44,10 @@ export function useClientFormDialog({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
-  const [state, formAction, isPending] = useActionState<ClientFormState, FormData>(action, undefined);
+  const [state, formAction, isPending] = useActionState<ClientFormState, FormData>(
+    action,
+    undefined
+  );
 
   useEffect(() => {
     if (state?.success) {
