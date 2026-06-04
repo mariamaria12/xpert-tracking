@@ -9,6 +9,7 @@ export const clientColumns: DataTableColumn<ClientRow>[] = [
   {
     id: "company",
     header: "Company",
+    getSortValue: (row) => row.companyName,
     cell: (row) => (
       <div className="min-w-0">
         <div className="truncate font-medium text-white/80">{row.companyName}</div>
@@ -35,6 +36,7 @@ export const clientColumns: DataTableColumn<ClientRow>[] = [
     id: "projectCount",
     header: "Projects",
     align: "right",
+    getSortValue: (row) => row.projectCount,
     cell: (row) => <span className="text-white/80">{row.projectCount}</span>,
   },
 

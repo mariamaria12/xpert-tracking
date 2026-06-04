@@ -142,6 +142,7 @@ export async function getPeopleRows(): Promise<PeopleRowsResult> {
       assignedProject,
       lastLog: getLastLogDisplay(lastLogAt, now),
       hoursWeek: getHoursWeekDisplay(totalMinutes > 0 ? totalMinutes / 60 : 0, now),
+      hoursWeekSortValue: totalMinutes > 0 ? totalMinutes / 60 : null,
     };
   });
 

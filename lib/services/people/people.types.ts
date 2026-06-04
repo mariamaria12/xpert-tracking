@@ -11,6 +11,7 @@ export type PeopleRow = {
   assignedProject: string | null;
   lastLog: LastLogDisplay | null;
   hoursWeek: HoursWeekDisplay | null;
+  hoursWeekSortValue: number | null;
 };
 
 export type PeopleRowsResult =

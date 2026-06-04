@@ -72,8 +72,7 @@ export async function getProjectRows(): Promise<ProjectRowsResult> {
       client:clients(company_name),
       time_logs(duration_minutes, employee_id)
     `
-    )
-    .order("name", { ascending: true });
+    );
 
   if (error) {
     console.error("Failed to load projects:", error);

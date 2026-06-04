@@ -11,6 +11,7 @@ export const peopleColumns: DataTableColumn<PeopleRow>[] = [
   {
     id: "name",
     header: "Name",
+    getSortValue: (row) => `${row.lastName} ${row.firstName}`,
     cell: (row) => (
       <div className="flex flex-col">
         <span className="font-medium text-white/80">
@@ -45,6 +46,7 @@ export const peopleColumns: DataTableColumn<PeopleRow>[] = [
   {
     id: "hoursPerWeek",
     header: "Hours/week",
+    getSortValue: (row) => row.hoursWeekSortValue,
     cell: (row) => <HoursWeekCard display={row.hoursWeek} />,
   },
   {

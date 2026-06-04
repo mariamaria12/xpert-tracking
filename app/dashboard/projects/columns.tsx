@@ -93,6 +93,7 @@ export function getProjectColumns({
     {
       id: "name",
       header: "Name",
+      getSortValue: (row) => row.name,
       cell: (row) => (
         <div className="min-w-0">
           <div className="truncate font-medium text-white/80">{row.name}</div>
@@ -104,18 +105,21 @@ export function getProjectColumns({
       id: "estimatedHours",
       header: "Estimated hours",
       align: "right",
+      getSortValue: (row) => row.estimatedHours,
       cell: (row) => <span className="text-white/80">{formatHours(row.estimatedHours)}</span>,
     },
     {
       id: "actualHours",
       header: "Actual hours",
       align: "right",
+      getSortValue: (row) => row.actualHours,
       cell: (row) => <span className="text-white/80">{formatHours(row.actualHours)}</span>,
     },
     {
       id: "workers",
       header: "Workers",
       align: "right",
+      getSortValue: (row) => row.workers,
       cell: (row) => <span className="text-white/80">{row.workers}</span>,
     },
     {
@@ -126,6 +130,7 @@ export function getProjectColumns({
     {
       id: "dueDate",
       header: "Due date",
+      getSortValue: (row) => row.dueDate?.getTime() ?? null,
       cell: (row) => (
         <DueDateCell
           dueDate={row.dueDate}

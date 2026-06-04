@@ -38,6 +38,7 @@ export function getTimesheetColumns({
     {
       id: "employee",
       header: "Employee",
+      getSortValue: (row) => row.employeeName,
       cell: (row) => <span className="font-medium text-white/80">{row.employeeName}</span>,
     },
     {

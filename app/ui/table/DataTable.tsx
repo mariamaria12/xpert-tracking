@@ -1,9 +1,18 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Columns3 } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight, Columns3 } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
+
+import {
+  compareSortValues,
+  nextSortDirection,
+  type SortDirection,
+  type SortState,
+} from "./dataTableSort";
+
+export type { SortDirection, SortState };
 
 export type DataTableColumn<T> = {
   id: string;
@@ -11,6 +20,10 @@ export type DataTableColumn<T> = {
   cell: (row: T) => React.ReactNode;
   visibleByDefault?: boolean;
   align?: "left" | "right";
+  /** When set, clicking the header sorts by this value. */
+  getSortValue?: (row: T) => string | number | null | undefined;
+  /** Screen-reader label when `header` is not plain text. */
+  sortLabel?: string;
 };
 
 export type DataTableEmptyState = {
@@ -27,6 +40,8 @@ export type DataTableProps<T> = {
   getRowId?: (row: T, index: number) => string;
   /** When set, paginates client-side. Pagination UI appears only if `data.length` exceeds this. */
   pageSize?: number;
+  /** Initial sort (client-side). */
+  initialSort?: SortState;
 };
 
 function formatResultsLabel(total: number, start: number, end: number, paginated: boolean) {
@@ -42,6 +57,158 @@ function formatResultsLabel(total: number, start: number, end: number, paginated
   return `${total} results`;
 }
 
+function getColumnSortLabel<T>(column: DataTableColumn<T>) {
+  if (column.sortLabel) {
+    return column.sortLabel;
+  }
+  if (typeof column.header === "string") {
+    return column.header;
+  }
+  return column.id;
+}
+
+const SORT_ICON_GUTTER_CLASS = "w-5 shrink-0";
+const ACTIONS_COLUMN_ID = "actions";
+
+/** Default data column width; primary label columns are 30% wider. */
+const TABLE_COL_WIDTH_CLASS = "w-[14%]";
+/** Fits the “Actions” label plus edit icon; shared by all tables. */
+const ACTIONS_COLUMN_WIDTH_CLASS = "w-[4rem] min-w-[4rem] max-w-[4rem]";
+const ACTIONS_COLUMN_SIZE_STYLE = {
+  width: "4rem",
+  minWidth: "4rem",
+  maxWidth: "4rem",
+} as const;
+const ACTIONS_COLUMN_CELL_CLASS = cn(
+  ACTIONS_COLUMN_WIDTH_CLASS,
+  "whitespace-nowrap px-2 py-4 text-right"
+);
+const ACTIONS_COLUMN_HEADER_CLASS = cn(
+  ACTIONS_COLUMN_WIDTH_CLASS,
+  "whitespace-nowrap px-2 py-4"
+);
+
+function isActionsColumn(columnId: string) {
+  return columnId === ACTIONS_COLUMN_ID;
+}
+
+function SortDirectionIcon({ direction }: { direction: SortDirection | null }) {
+  if (direction === "asc") {
+    return <ArrowUp className="h-3.5 w-3.5" aria-hidden />;
+  }
+  if (direction === "desc") {
+    return <ArrowDown className="h-3.5 w-3.5" aria-hidden />;
+  }
+  return <ArrowUpDown className="h-3.5 w-3.5" aria-hidden />;
+}
+
+function ColumnHeader<T>({
+  column,
+  sortState,
+  onSort,
+}: {
+  column: DataTableColumn<T>;
+  sortState: SortState | null;
+  onSort: (columnId: string) => void;
+}) {
+  const label = getColumnSortLabel(column);
+  const isSortable = Boolean(column.getSortValue);
+  const isActive = sortState?.columnId === column.id;
+  const direction = isActive ? sortState.direction : null;
+
+  if (isActionsColumn(column.id)) {
+    return (
+      <span className="block whitespace-nowrap text-left uppercase tracking-wider text-white/50">
+        {column.header}
+      </span>
+    );
+  }
+
+  const headerLayoutClass =
+    "flex w-full min-w-0 flex-row items-center text-left uppercase tracking-wider";
+
+  const labelContent = (
+    <span
+      className={cn(
+        "block min-w-0 flex-1 truncate text-left",
+        isSortable && isActive ? "text-white/80" : "text-white/50"
+      )}
+    >
+      {column.header}
+    </span>
+  );
+
+  const reserveSortGutter = isSortable;
+  const iconSlot = reserveSortGutter ? (
+    <span
+      className={cn(
+        SORT_ICON_GUTTER_CLASS,
+        "inline-flex shrink-0 items-center justify-center text-white/40",
+        "group-hover:text-white/60",
+        isActive && "text-white/70"
+      )}
+      aria-hidden
+    >
+      <SortDirectionIcon direction={direction} />
+    </span>
+  ) : null;
+
+  if (!isSortable) {
+    return <div className={headerLayoutClass}>{labelContent}</div>;
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => onSort(column.id)}
+      className={cn(headerLayoutClass, "group hover:text-white/80")}
+      aria-label={
+        direction
+          ? `Sort by ${label}, ${direction === "asc" ? "ascending" : "descending"}`
+          : `Sort by ${label}`
+      }
+    >
+      {labelContent}
+      {iconSlot}
+    </button>
+  );
+}
+
+function getColumnWidthClass(columnId: string) {
+  if (isActionsColumn(columnId)) {
+    return undefined;
+  }
+
+  switch (columnId) {
+    /** No fixed % — absorbs leftover width under `table-fixed`. */
+    case "name":
+    case "company":
+    case "employee":
+      return undefined;
+    case "estimatedHours":
+    case "actualHours":
+      return TABLE_COL_WIDTH_CLASS;
+    case "dueDate":
+      return "w-[12%]";
+    case "workers":
+    case "projectCount":
+    case "hoursPerWeek":
+      return "w-[11%]";
+    case "status":
+    case "lastLog":
+    case "assignedProject":
+      return "w-[12%]";
+    case "contact":
+    case "deliveryAddress":
+    case "project":
+    case "date":
+    case "hours":
+      return TABLE_COL_WIDTH_CLASS;
+    default:
+      return undefined;
+  }
+}
+
 export default function DataTable<T>({
   data,
   columns,
@@ -49,6 +216,7 @@ export default function DataTable<T>({
   className,
   getRowId,
   pageSize,
+  initialSort,
 }: DataTableProps<T>) {
   const initialVisible = useMemo(() => {
     const visible = columns.filter((c) => c.visibleByDefault ?? true).map((c) => c.id);
@@ -64,17 +232,44 @@ export default function DataTable<T>({
   const [visibleColumnIds, setVisibleColumnIds] = useState<string[]>(initialVisible);
   const [columnsOpen, setColumnsOpen] = useState(false);
   const [page, setPage] = useState(0);
+  const [sortState, setSortState] = useState<SortState | null>(initialSort ?? null);
   const columnsMenuRef = useRef<HTMLDivElement>(null);
 
-  const paginationEnabled = pageSize !== undefined && pageSize > 0 && data.length > pageSize;
-  const pageCount = paginationEnabled ? Math.ceil(data.length / pageSize) : 1;
+  const sortedData = useMemo(() => {
+    if (!sortState) {
+      return data;
+    }
+
+    const column = columns.find((col) => col.id === sortState.columnId);
+    if (!column?.getSortValue) {
+      return data;
+    }
+
+    const getSortValue = column.getSortValue;
+    return [...data].sort((rowA, rowB) =>
+      compareSortValues(getSortValue(rowA), getSortValue(rowB), sortState.direction)
+    );
+  }, [columns, data, sortState]);
+
+  const paginationEnabled = pageSize !== undefined && pageSize > 0 && sortedData.length > pageSize;
+  const pageCount = paginationEnabled ? Math.ceil(sortedData.length / pageSize) : 1;
   const clampedPage = paginationEnabled ? Math.min(page, Math.max(0, pageCount - 1)) : 0;
   const pageStart = paginationEnabled ? clampedPage * pageSize : 0;
-  const pageEnd = paginationEnabled ? Math.min(pageStart + pageSize, data.length) : data.length;
-  const tableData = paginationEnabled ? data.slice(pageStart, pageEnd) : data;
+  const pageEnd = paginationEnabled
+    ? Math.min(pageStart + pageSize, sortedData.length)
+    : sortedData.length;
+  const tableData = paginationEnabled ? sortedData.slice(pageStart, pageEnd) : sortedData;
 
   function goToPage(next: number) {
     setPage(Math.max(0, Math.min(pageCount - 1, next)));
+  }
+
+  function handleSort(columnId: string) {
+    setSortState((current) => ({
+      columnId,
+      direction: nextSortDirection(current, columnId),
+    }));
+    setPage(0);
   }
 
   useEffect(() => {
@@ -101,7 +296,6 @@ export default function DataTable<T>({
     setVisibleColumnIds((prev) => {
       const isVisible = prev.includes(id);
       if (isVisible) {
-        // Prevent a "no columns" table.
         if (prev.length <= 1) {
           return prev;
         }
@@ -151,7 +345,7 @@ export default function DataTable<T>({
                     onChange={() => toggleColumn(col.id)}
                     className="h-4 w-4 accent-cyan-400"
                   />
-                  <span className="truncate">{col.header}</span>
+                  <span className="truncate">{getColumnSortLabel(col)}</span>
                 </label>
               );
             })}
@@ -162,7 +356,7 @@ export default function DataTable<T>({
   ) : null;
 
   const resultsLabel = formatResultsLabel(
-    data.length,
+    sortedData.length,
     paginationEnabled ? pageStart + 1 : 1,
     pageEnd,
     paginationEnabled
@@ -200,15 +394,27 @@ export default function DataTable<T>({
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-white/10">
-        <table className="w-full min-w-[36rem] border-collapse text-left">
+        <table className="w-full min-w-[36rem] table-fixed border-collapse text-left">
+          <colgroup>
+            {visibleColumns.map((col) => (
+              <col
+                key={col.id}
+                style={isActionsColumn(col.id) ? ACTIONS_COLUMN_SIZE_STYLE : undefined}
+                className={getColumnWidthClass(col.id)}
+              />
+            ))}
+            {showColumnToggle ? <col className="w-12" /> : null}
+          </colgroup>
           <thead>
-            <tr className="bg-white/5 text-xs uppercase tracking-wider text-white/50">
+            <tr className="bg-white/5 text-xs font-medium tracking-wider text-white/50">
               {visibleColumns.map((col) => (
                 <th
                   key={col.id}
-                  className={cn("p-4 font-medium", col.align === "right" && "text-right")}
+                  className={cn(
+                    isActionsColumn(col.id) ? ACTIONS_COLUMN_HEADER_CLASS : "overflow-hidden p-4"
+                  )}
                 >
-                  {col.header}
+                  <ColumnHeader column={col} sortState={sortState} onSort={handleSort} />
                 </th>
               ))}
               {showColumnToggle ? (
@@ -219,7 +425,7 @@ export default function DataTable<T>({
             </tr>
           </thead>
           <tbody>
-            {data.length === 0 ? (
+            {sortedData.length === 0 ? (
               <tr className="border-t border-white/10 text-white/20">
                 <td colSpan={Math.max(1, columnCount)}>
                   <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -242,7 +448,14 @@ export default function DataTable<T>({
                   className="border-t border-white/10 text-white/20 transition hover:bg-white/5"
                 >
                   {visibleColumns.map((col) => (
-                    <td key={col.id} className={cn("p-4", col.align === "right" && "text-right")}>
+                    <td
+                      key={col.id}
+                      className={cn(
+                        isActionsColumn(col.id)
+                          ? ACTIONS_COLUMN_CELL_CLASS
+                          : cn("overflow-hidden p-4", col.align === "right" && "text-right")
+                      )}
+                    >
                       {col.cell(row)}
                     </td>
                   ))}
