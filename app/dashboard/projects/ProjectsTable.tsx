@@ -6,8 +6,7 @@ import DataTable from "@/ui/table/DataTable";
 
 import { getProjectColumns } from "./columns";
 
-import type { ClientOption } from "./AddProjectDialog";
-import type { ProjectRow } from "@/lib/services/projects/projects.types";
+import type { ClientOption , ProjectRow } from "@/lib/services/projects/projects.types";
 
 type ProjectsTableProps = {
   rows: ProjectRow[];

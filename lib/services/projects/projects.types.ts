@@ -1,4 +1,4 @@
-import type { ClientOption } from "@/dashboard/projects/AddProjectDialog";
+export type ClientOption = { id: string; label: string };
 
 export type ProjectRow = {
   id: string;
