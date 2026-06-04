@@ -72,18 +72,21 @@ const ACTIONS_COLUMN_ID = "actions";
 
 /** Default data column width; primary label columns are 30% wider. */
 const TABLE_COL_WIDTH_CLASS = "w-[14%]";
-/** Fits the “Actions” label plus edit icon; shared by all tables. */
-const ACTIONS_COLUMN_WIDTH_CLASS = "w-[4rem] min-w-[4rem] max-w-[4rem]";
+/** Fits the “Actions” label plus edit icon; extra right padding clears the column toggle. */
+const ACTIONS_COLUMN_WIDTH_CLASS = "w-[5rem] min-w-[5rem] max-w-[5rem]";
 const ACTIONS_COLUMN_SIZE_STYLE = {
-  width: "4rem",
-  minWidth: "4rem",
-  maxWidth: "4rem",
+  width: "5rem",
+  minWidth: "5rem",
+  maxWidth: "5rem",
 } as const;
 const ACTIONS_COLUMN_CELL_CLASS = cn(
   ACTIONS_COLUMN_WIDTH_CLASS,
-  "whitespace-nowrap px-2 py-4 text-right"
+  "whitespace-nowrap py-4 pl-2 pr-4 text-right"
 );
-const ACTIONS_COLUMN_HEADER_CLASS = cn(ACTIONS_COLUMN_WIDTH_CLASS, "whitespace-nowrap px-2 py-4");
+const ACTIONS_COLUMN_HEADER_CLASS = cn(
+  ACTIONS_COLUMN_WIDTH_CLASS,
+  "whitespace-nowrap py-4 pl-2 pr-4"
+);
 
 function isActionsColumn(columnId: string) {
   return columnId === ACTIONS_COLUMN_ID;
