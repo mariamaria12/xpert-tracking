@@ -20,8 +20,8 @@ export const PROJECT_STATUSES = [
 
 export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
 
-/** Not shown on the home “active projects” section or count. */
-export const HOME_INACTIVE_PROJECT_STATUSES = [
+/** Statuses excluded from the “active” in-progress project group. */
+export const ACTIVE_PROJECT_EXCLUDED_STATUSES = [
   "draft",
   "quoted",
   "approved",
@@ -29,7 +29,9 @@ export const HOME_INACTIVE_PROJECT_STATUSES = [
   "cancelled",
 ] as const;
 
-const homeInactiveSet = new Set<string>(HOME_INACTIVE_PROJECT_STATUSES.map((s) => s.toLowerCase()));
+const activeProjectExcludedSet = new Set<string>(
+  ACTIVE_PROJECT_EXCLUDED_STATUSES.map((status) => status.toLowerCase())
+);
 
 export function formatProjectStatusLabel(status: string) {
   return status
@@ -38,8 +40,12 @@ export function formatProjectStatusLabel(status: string) {
     .join(" ");
 }
 
-export function isActiveHomeProject(status: string) {
-  return !homeInactiveSet.has(status.trim().toLowerCase());
+export function isActiveProjectStatus(status: string) {
+  return !activeProjectExcludedSet.has(status.trim().toLowerCase());
+}
+
+export function getActiveProjectStatuses(): ProjectStatus[] {
+  return PROJECT_STATUSES.filter((status) => isActiveProjectStatus(status));
 }
 
 export const projectStatusOptions = PROJECT_STATUSES.map((status) => ({

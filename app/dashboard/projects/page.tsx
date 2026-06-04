@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { Suspense } from "react";
 
 import { createClient } from "@/lib/supabase/server";
 
@@ -7,7 +8,20 @@ import ProjectsPageContent from "./ProjectsPageContent";
 
 type ClientDbRow = { id: string; company_name: string };
 
-export default async function ProjectsPage() {
+type ProjectsPageProps = {
+  searchParams: Promise<{ filter?: string | string[] }>;
+};
+
+function resolveProjectsFilter(filter: string | string[] | undefined): string | undefined {
+  if (Array.isArray(filter)) {
+    return filter[0];
+  }
+  return filter;
+}
+
+export default async function ProjectsPage({ searchParams }: ProjectsPageProps) {
+  const { filter } = await searchParams;
+  const initialFilterPreset = resolveProjectsFilter(filter);
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
@@ -22,5 +36,14 @@ export default async function ProjectsPage() {
       label: c.company_name?.trim() || "—",
     })) ?? [];
 
-  return <ProjectsPageContent rows={rows} error={error} clients={clientOptions} />;
+  return (
+    <Suspense fallback={null}>
+      <ProjectsPageContent
+        rows={rows}
+        error={error}
+        clients={clientOptions}
+        initialFilterPreset={initialFilterPreset}
+      />
+    </Suspense>
+  );
 }

@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { cache } from "react";
 
-import { isActiveHomeProject } from "@/lib/services/projects/projectStatuses";
+import { isActiveProjectStatus } from "@/lib/services/projects/projectStatuses";
 import { createClient } from "@/lib/supabase/server";
 
 import type { ActiveClientSummary, ActiveProjectSummary, HomeDashboardData } from "./home.types";
@@ -55,7 +55,7 @@ async function fetchActiveHomePanelsData(): Promise<ActiveHomePanelsData> {
   const activeProjectsList: ActiveProjectSummary[] = activeProjectsError
     ? []
     : ((activeProjects ?? []) as ActiveProjectDbRow[])
-        .filter((p) => isActiveHomeProject(p.status))
+        .filter((p) => isActiveProjectStatus(p.status))
         .map((p) => ({
           id: p.id,
           name: p.name,
@@ -71,7 +71,7 @@ async function fetchActiveHomePanelsData(): Promise<ActiveHomePanelsData> {
     : (() => {
         const byClientId = new Map<string, ActiveClientSummary>();
         for (const p of (activeProjects ?? []) as ActiveProjectDbRow[]) {
-          if (!isActiveHomeProject(p.status)) {
+          if (!isActiveProjectStatus(p.status)) {
             continue;
           }
           const clientId = p.client_id;
@@ -133,7 +133,7 @@ export async function getHomeStatCardsData(): Promise<
     let activeCount = 0;
 
     for (const project of projects) {
-      if (!isActiveHomeProject(project.status)) {
+      if (!isActiveProjectStatus(project.status)) {
         continue;
       }
       activeCount += 1;
