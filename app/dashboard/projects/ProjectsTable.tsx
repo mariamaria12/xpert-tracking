@@ -13,20 +13,32 @@ type ProjectsTableProps = {
   rows: ProjectRow[];
   error?: string;
   clients: ClientOption[];
+  isSearchActive?: boolean;
 };
 
-export default function ProjectsTable({ rows, error, clients }: ProjectsTableProps) {
+export default function ProjectsTable({
+  rows,
+  error,
+  clients,
+  isSearchActive = false,
+}: ProjectsTableProps) {
   const emptyState = error
     ? {
         title: "Could not load projects",
         description: error,
         icon: <FolderKanban className="h-6 w-6" aria-hidden />,
       }
-    : {
-        title: "No projects yet",
-        description: "Your projects will appear here once created.",
-        icon: <FolderKanban className="h-6 w-6" aria-hidden />,
-      };
+    : isSearchActive
+      ? {
+          title: "No matching projects",
+          description: "Try a different project name.",
+          icon: <FolderKanban className="h-6 w-6" aria-hidden />,
+        }
+      : {
+          title: "No projects yet",
+          description: "Your projects will appear here once created.",
+          icon: <FolderKanban className="h-6 w-6" aria-hidden />,
+        };
 
   const columns = getProjectColumns({ clients });
 

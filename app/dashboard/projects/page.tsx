@@ -2,9 +2,8 @@ import { cookies } from "next/headers";
 
 import { createClient } from "@/lib/supabase/server";
 
-import AddProjectDialog from "./AddProjectDialog";
 import { getProjectRows } from "./getProjectRows";
-import ProjectsTable from "./ProjectsTable";
+import ProjectsPageContent from "./ProjectsPageContent";
 
 type ClientDbRow = { id: string; company_name: string };
 
@@ -23,12 +22,5 @@ export default async function ProjectsPage() {
       label: c.company_name?.trim() || "—",
     })) ?? [];
 
-  return (
-    <div>
-      <div className="mb-8 flex flex-wrap items-center justify-end gap-4">
-        <AddProjectDialog clients={clientOptions} />
-      </div>
-      <ProjectsTable rows={rows} error={error} clients={clientOptions} />
-    </div>
-  );
+  return <ProjectsPageContent rows={rows} error={error} clients={clientOptions} />;
 }
