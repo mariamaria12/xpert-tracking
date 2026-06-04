@@ -45,5 +45,7 @@ export function filterProjectRows(rows: ProjectRow[], filter: ProjectRowsFilter)
 }
 
 export function hasActiveProjectFilters(filter: ProjectRowsFilter): boolean {
-  return filter.nameQuery.trim().length > 0 || filter.presets.length > 0 || filter.statuses.length > 0;
+  return (
+    filter.nameQuery.trim().length > 0 || filter.presets.length > 0 || filter.statuses.length > 0
+  );
 }

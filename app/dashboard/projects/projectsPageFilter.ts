@@ -36,11 +36,15 @@ export function resolveInitialProjectsPageFilter(
   return { presets: [preset], statuses: [] };
 }
 
-export function getProjectsPageFilterPreset(presetId: string): ProjectsPageFilterPreset | undefined {
+export function getProjectsPageFilterPreset(
+  presetId: string
+): ProjectsPageFilterPreset | undefined {
   return PROJECTS_PAGE_FILTER_PRESETS[presetId];
 }
 
-export function listSelectableProjectsPagePresets(selectedPresetIds: string[]): ProjectsPageFilterPreset[] {
+export function listSelectableProjectsPagePresets(
+  selectedPresetIds: string[]
+): ProjectsPageFilterPreset[] {
   return Object.values(PROJECTS_PAGE_FILTER_PRESETS).filter(
     (preset) => !selectedPresetIds.includes(preset.id)
   );

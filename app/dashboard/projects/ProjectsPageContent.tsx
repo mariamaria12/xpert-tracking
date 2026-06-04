@@ -6,13 +6,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import AddProjectDialog from "./AddProjectDialog";
 import { filterProjectRows, hasActiveProjectFilters } from "./filterProjectRows";
-import ProjectStatusFilter from "./ProjectStatusFilter";
 import {
   resolveInitialProjectsPageFilter,
   toProjectRowsFilter,
   type ProjectsPageFilterState,
 } from "./projectsPageFilter";
 import ProjectsTable from "./ProjectsTable";
+import ProjectStatusFilter from "./ProjectStatusFilter";
 
 import type { ClientOption, ProjectRow } from "@/lib/services/projects/projects.types";
 

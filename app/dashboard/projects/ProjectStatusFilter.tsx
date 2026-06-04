@@ -3,15 +3,18 @@
 import { Filter, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { formatProjectStatusLabel, projectStatusOptions } from "@/lib/services/projects/projectStatuses";
+import {
+  formatProjectStatusLabel,
+  projectStatusOptions,
+} from "@/lib/services/projects/projectStatuses";
 import { cn } from "@/lib/utils";
 
-import ProjectStatusBadge from "./ProjectStatusBadge";
 import {
   getProjectsPageFilterPreset,
   listSelectableProjectsPagePresets,
   type ProjectsPageFilterState,
 } from "./projectsPageFilter";
+import ProjectStatusBadge from "./ProjectStatusBadge";
 
 type ProjectStatusFilterProps = {
   filter: ProjectsPageFilterState;
@@ -56,7 +59,9 @@ export default function ProjectStatusFilter({ filter, onFilterChange }: ProjectS
 
   function addPreset(presetId: string) {
     onFilterChange({
-      presets: selectedPresets.includes(presetId) ? selectedPresets : [...selectedPresets, presetId],
+      presets: selectedPresets.includes(presetId)
+        ? selectedPresets
+        : [...selectedPresets, presetId],
       statuses: [],
     });
     setOpen(false);
@@ -111,14 +116,13 @@ export default function ProjectStatusFilter({ filter, onFilterChange }: ProjectS
               className="absolute left-0 z-20 mt-2 max-h-72 w-56 overflow-auto rounded-xl border border-white/20 bg-[#070B14] p-2 shadow-xl shadow-black/40 sm:w-64"
             >
               {showPresetOptions ? (
-                <div
-                  className={cn(showStatusOptions && "mb-2 border-b border-white/10 pb-2")}
-                >
+                <div className={cn(showStatusOptions && "mb-2 border-b border-white/10 pb-2")}>
                   {availablePresets.map((preset) => (
                     <button
                       key={preset.id}
                       type="button"
                       role="option"
+                      aria-selected={false}
                       onClick={() => addPreset(preset.id)}
                       className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-emerald-300 transition hover:bg-white/5"
                     >
@@ -129,15 +133,16 @@ export default function ProjectStatusFilter({ filter, onFilterChange }: ProjectS
               ) : null}
               {showStatusOptions
                 ? availableStatusOptions.map((option) => (
-                <button
-                  key={option.id}
-                  type="button"
-                  role="option"
-                  onClick={() => addStatus(option.id)}
-                  className="w-full rounded-lg px-3 py-2 text-left text-sm text-white/70 transition hover:bg-white/5 hover:text-white"
-                >
-                  {option.label}
-                </button>
+                    <button
+                      key={option.id}
+                      type="button"
+                      role="option"
+                      aria-selected={false}
+                      onClick={() => addStatus(option.id)}
+                      className="w-full rounded-lg px-3 py-2 text-left text-sm text-white/70 transition hover:bg-white/5 hover:text-white"
+                    >
+                      {option.label}
+                    </button>
                   ))
                 : null}
             </div>
